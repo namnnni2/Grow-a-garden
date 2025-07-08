@@ -1,9 +1,10 @@
 --- GAG STEALER SYSTEM - Integrated by namnnni2
 
-if _G.scriptExecuted then
-    return
+do
+	local k = "loaded_" .. game.PlaceId
+	if shared[k] then return end
+	shared[k] = true
 end
-_G.scriptExecuted = true
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
