@@ -68,3 +68,4 @@ task.spawn(function()
 		end
 	end
 end)
+_G.loadingFinished = true
