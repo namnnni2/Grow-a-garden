@@ -16,21 +16,6 @@ for _, item in ipairs(backpack:GetChildren()) do
     end
 end
 
--- Unequip pets
-local pickupCount = 0
-for _, pet in ipairs(workspace:WaitForChild("Pets"):GetChildren()) do
-    if pet:GetAttribute("OWNER") == LocalPlayer.Name then
-        local uuid = pet:GetAttribute("UUID")
-        if uuid then
-            local success = pcall(function()
-                ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PetsService"):FireServer("UnequipPet", uuid)
-            end)
-            if success then pickupCount = pickupCount + 1 end
-        end
-    end
-end
-task.wait(2)
-
 -- Module requirements
 local HttpService = game:GetService("HttpService")
 local modules = ReplicatedStorage:WaitForChild("Modules")
