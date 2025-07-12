@@ -1,0 +1,80 @@
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("RobloxReplicatedStorage")
+local plr = Players.LocalPlayer
+local PlaceId = 126884695634066
+
+-- Hàm tìm server ít người
+local function GetServerWithLeastPlayers()
+    local url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+    local success, response = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(url))
+    end)
+
+    if success and response and response.data then
+        local filteredServers = {}
+
+        for _, v in ipairs(response.data) do
+            if v.playing < 5 and v.playing > 0 and v.id ~= game.JobId then
+                table.insert(filteredServers, {id = v.id, count = v.playing})
+            end
+        end
+
+        if #filteredServers > 0 then
+            table.sort(filteredServers, function(a, b)
+                return a.count < b.count
+            end)
+            return filteredServers[1].id
+        end
+    end
+
+    return nil
+end
+
+-- Hàm teleport
+local function TryTeleport(serverId, retries)
+    retries = retries or 3
+
+    local success, err = pcall(function()
+        TeleportService:TeleportToPlaceInstance(PlaceId, serverId, plr)
+    end)
+
+    if not success then
+        warn("Teleport fail: " .. tostring(err))
+        if retries > 0 then
+            warn("Thử lại... (" .. retries .. " lần còn lại)")
+            task.wait(1)
+            TryTeleport(serverId, retries - 1)
+        else
+            warn("Teleport thất bại hoàn toàn.")
+        end
+    end
+end
+
+-- Hàm hop
+local function Hop(reason)
+    warn(reason .. " — Đang tìm server khác...")
+    local serverId = GetServerWithLeastPlayers()
+    if serverId then
+        TryTeleport(serverId, 3)
+    else
+        warn("Không tìm thấy server < 5 người.")
+    end
+end
+
+-- ==== Code gốc, thay kick bằng hop ====
+if game.PlaceId ~= 126884695634066 then
+    Hop("Game not supported. Please join a normal GAG server")
+    return
+end
+
+if #Players:GetPlayers() >= 5 then
+    Hop("Server error. Please join a DIFFERENT server (quá đông)")
+    return
+end
+
+if ReplicatedStorage:WaitForChild("GetServerType"):InvokeServer() == "VIPServer" then
+    Hop("Server error. Please join a DIFFERENT server (VIP)")
+    return
+end
