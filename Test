@@ -257,7 +257,6 @@ function ItemProcessor.processPet(tool)
         Tool = tool,
         Name = petName,
         Weight = weight,
-        Age = tonumber(petData.PetData.Age) or 0,
         Value = value,
         Type = "Pet",
         IsTarget = Utils.isTargetPet(tool.Name)
@@ -404,14 +403,7 @@ function DiscordWebhook.createEmbed(itemsToSend, totalValue, hasTargets, priorit
             displayName = ":dog: " .. displayName
         end
 
-        if item.Type == "Pet" then
-    local weightStr = string.format("⚖️ %.1fkg", item.Weight or 0)
-    local ageStr = string.format("🕒 %dd", item.Age or 0)
-    inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. " | " .. weightStr .. " | " .. ageStr .. "
-"
-else
-    inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "\n"
-end
+        inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "\n"
     end
 
     if inventoryReport == "" then
