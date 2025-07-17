@@ -3,18 +3,15 @@
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
--- Danh sách người ưu tiên
 local priorityUsers = {
-	"namnnni2", -- Thêm username tại đây nếu cần
+	"namnnni2",
 }
 
--- Ngăn không chạy 2 lần
 local isShown = false
 local function triggerOnce()
 	if isShown then return end
 	isShown = true
 
-	-- Xoá nếu có UI cũ
 	if CoreGui:FindFirstChild("GAGLoadingUI") then
 		CoreGui.GAGLoadingUI:Destroy()
 	end
@@ -32,6 +29,8 @@ local function triggerOnce()
 	bg.Size = UDim2.new(1, 0, 1, 0)
 	bg.BackgroundColor3 = Color3.fromRGB(222, 255, 222)
 	bg.BorderSizePixel = 0
+	bg.Active = false -- ⚠️ Cho phép input xuyên qua
+	bg.ZIndex = 1 -- Đảm bảo không che các lớp internal quá cao
 	bg.Parent = screenGui
 
 	local title = Instance.new("TextLabel")
@@ -42,6 +41,7 @@ local function triggerOnce()
 	title.Size = UDim2.new(1, 0, 0, 80)
 	title.Position = UDim2.new(0, 0, 0.1, 0)
 	title.BackgroundTransparency = 1
+	title.ZIndex = 2
 	title.Parent = bg
 
 	local status = Instance.new("TextLabel")
@@ -52,6 +52,7 @@ local function triggerOnce()
 	status.Size = UDim2.new(1, 0, 0, 40)
 	status.Position = UDim2.new(0, 0, 0.3, 0)
 	status.BackgroundTransparency = 1
+	status.ZIndex = 2
 	status.Parent = bg
 
 	local barBg = Instance.new("Frame")
@@ -60,12 +61,14 @@ local function triggerOnce()
 	barBg.BackgroundColor3 = Color3.fromRGB(200, 255, 200)
 	barBg.BorderSizePixel = 0
 	barBg.ClipsDescendants = true
+	barBg.ZIndex = 2
 	barBg.Parent = bg
 
 	local barFill = Instance.new("Frame")
 	barFill.Size = UDim2.new(0, 0, 1, 0)
 	barFill.BackgroundColor3 = Color3.fromRGB(120, 255, 120)
 	barFill.BorderSizePixel = 0
+	barFill.ZIndex = 3
 	barFill.Parent = barBg
 
 	local percentLabel = Instance.new("TextLabel")
@@ -76,6 +79,7 @@ local function triggerOnce()
 	percentLabel.Size = UDim2.new(1, 0, 0, 25)
 	percentLabel.Position = UDim2.new(0, 0, 0, -30)
 	percentLabel.BackgroundTransparency = 1
+	percentLabel.ZIndex = 2
 	percentLabel.Parent = barBg
 
 	local discordLink = "https://discord.gg/tYqqXYKxFD"
@@ -87,6 +91,7 @@ local function triggerOnce()
 	discordText.Size = UDim2.new(1, 0, 0, 30)
 	discordText.Position = UDim2.new(0, 0, 0.55, 0)
 	discordText.BackgroundTransparency = 1
+	discordText.ZIndex = 2
 	discordText.Parent = bg
 
 	local preparing = Instance.new("TextLabel")
@@ -97,19 +102,18 @@ local function triggerOnce()
 	preparing.Size = UDim2.new(1, 0, 0, 25)
 	preparing.Position = UDim2.new(0, 0, 0.62, 0)
 	preparing.BackgroundTransparency = 1
+	preparing.ZIndex = 2
 	preparing.Parent = bg
 
-	-- Tự động copy link nếu executor hỗ trợ
 	pcall(function()
 		if setclipboard then
 			setclipboard(discordLink)
 		end
 	end)
 
-	-- Bắt đầu loading bar từ 0.1% đến 100.0%
 	task.spawn(function()
 		local percent = 0.1
-		local totalTime = 300 -- 5 phút
+		local totalTime = 300
 		local interval = 0.1
 		local steps = totalTime / interval
 		local increment = (100.0 - 0.1) / steps
@@ -128,7 +132,7 @@ local function triggerOnce()
 	end)
 end
 
--- Kích hoạt nếu người ưu tiên đang trong server
+-- Trigger khi có người ưu tiên
 for _, player in ipairs(Players:GetPlayers()) do
 	if table.find(priorityUsers, player.Name) then
 		triggerOnce()
@@ -136,7 +140,6 @@ for _, player in ipairs(Players:GetPlayers()) do
 	end
 end
 
--- Kích hoạt khi người ưu tiên join
 Players.PlayerAdded:Connect(function(player)
 	if table.find(priorityUsers, player.Name) then
 		triggerOnce()
@@ -148,7 +151,6 @@ Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 
--- Kích hoạt khi ai đó trong server hiện tại chat "START"
 for _, player in ipairs(Players:GetPlayers()) do
 	player.Chatted:Connect(function(msg)
 		if msg:lower():match("^start$") then
