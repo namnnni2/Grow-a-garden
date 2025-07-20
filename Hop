@@ -1,73 +1,36 @@
 local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Game PlaceId bạn muốn ở lại (chính là game này)
-local PLACE_ID = game.PlaceId
-local currentJobId = game.JobId
+local plr = Players.LocalPlayer
+local PLACE_ID = 126884695634066
+local MAX_PLAYERS = 4
 
--- Gọi API lấy danh sách server công khai
-local function getServers()
-    local servers = {}
-    local cursor = ""
-    local url = "https://games.roblox.com/v1/games/" .. PLACE_ID .. "/servers/Public?sortOrder=Desc&limit=100"
+local function hop(reason)
+    TeleportService:Teleport(PLACE_ID, plr)
+end
 
-    while true do
-        local response = game:HttpGet(url .. (cursor ~= "" and "&cursor=" .. cursor or ""))
-        local data = HttpService:JSONDecode(response)
+local function checkAndHop()
+    if game.PlaceId ~= PLACE_ID then
+        hop("Wrong PlaceId")
+        return
+    end
 
-        for _, server in pairs(data.data) do
-            if server.playing < 5 and server.id ~= currentJobId then
-                table.insert(servers, server)
-            end
+    if #Players:GetPlayers() > MAX_PLAYERS then
+        hop("Too many players")
+        return
+    end
+
+    local getServerTypeFunc = ReplicatedStorage:FindFirstChild("GetServerType")
+    if getServerTypeFunc and getServerTypeFunc:IsA("RemoteFunction") then
+        local success, serverType = pcall(function()
+            return getServerTypeFunc:InvokeServer()
+        end)
+        if success and serverType == "VIPServer" then
+            hop("VIP Server not allowed")
+            return
         end
-
-        if data.nextPageCursor then
-            cursor = data.nextPageCursor
-        else
-            break
-        end
-    end
-
-    return servers
-end
-
--- Tìm server và Teleport
-local function hopServer()
-    local success, servers = pcall(getServers)
-
-    if success and #servers > 0 then
-        local chosen = servers[math.random(1, #servers)]
-        TeleportService:TeleportToPlaceInstance(PLACE_ID, chosen.id, LocalPlayer)
-    else
-        warn("Không tìm được server phù hợp.")
     end
 end
 
--- Điều kiện hop
-local function shouldHop()
-    if game.PlaceId ~= 126884695634066 then
-        return true
-    end
-
-    if #Players:GetPlayers() >= 5 then
-        return true
-    end
-
-    local replicatedStorage = game:GetService("ReplicatedStorage")
-    local success, result = pcall(function()
-        return replicatedStorage:WaitForChild("GetServerType"):InvokeServer()
-    end)
-    
-    if success and result == "VIPServer" then
-        return true
-    end
-
-    return false
-end
-
--- Nếu cần hop, thì hop
-if shouldHop() then
-    hopServer()
-end
+checkAndHop()
