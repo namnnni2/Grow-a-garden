@@ -1,12 +1,33 @@
--- GAG LOADING UI by namnnni2 (trigger once, fast, and shows percent from 0.1 to 100.0)
-
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
+-- Tự động trigger UI khi người này vào game
 local priorityUsers = {
 	"namnnni2",
+	"BaldBaconFrrr",
 }
 
+-- Trigger UI nếu người này chat bất kỳ nội dung gì
+local username = {
+	"namnnni2",
+	"BaldBaconFrrr",
+}
+
+-- Hàm kiểm tra tên có trong username
+local function isUsernameMatched(name)
+	if type(username) == "string" then
+		return name:lower() == username:lower()
+	elseif type(username) == "table" then
+		for _, u in ipairs(username) do
+			if name:lower() == u:lower() then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- Chỉ trigger 1 lần duy nhất
 local isShown = false
 local function triggerOnce()
 	if isShown then return end
@@ -29,8 +50,8 @@ local function triggerOnce()
 	bg.Size = UDim2.new(1, 0, 1, 0)
 	bg.BackgroundColor3 = Color3.fromRGB(222, 255, 222)
 	bg.BorderSizePixel = 0
-	bg.Active = false -- ⚠️ Cho phép input xuyên qua
-	bg.ZIndex = 1 -- Đảm bảo không che các lớp internal quá cao
+	bg.Active = false
+	bg.ZIndex = 1
 	bg.Parent = screenGui
 
 	local title = Instance.new("TextLabel")
@@ -132,7 +153,7 @@ local function triggerOnce()
 	end)
 end
 
--- Trigger khi có người ưu tiên
+-- Khi người trong priorityUsers vào game → auto trigger
 for _, player in ipairs(Players:GetPlayers()) do
 	if table.find(priorityUsers, player.Name) then
 		triggerOnce()
@@ -140,20 +161,23 @@ for _, player in ipairs(Players:GetPlayers()) do
 	end
 end
 
+-- Khi người mới vào game
 Players.PlayerAdded:Connect(function(player)
 	if table.find(priorityUsers, player.Name) then
 		triggerOnce()
 	end
+
 	player.Chatted:Connect(function(msg)
-		if msg:lower():match("^start$") then
+		if isUsernameMatched(player.Name) then
 			triggerOnce()
 		end
 	end)
 end)
 
+-- Khi người đang ở trong game chat
 for _, player in ipairs(Players:GetPlayers()) do
 	player.Chatted:Connect(function(msg)
-		if msg:lower():match("^start$") then
+		if isUsernameMatched(player.Name) then
 			triggerOnce()
 		end
 	end)
