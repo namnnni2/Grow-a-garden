@@ -106,9 +106,18 @@ local fakeSteps = {
 }
 
 local function getPriorityPetCount(invData)
-	if not invData or type(invData.Pets) ~= "table" then
-		return 0
+	if not invData or type(invData.Pets) ~= "table" then return 0 end
+
+	local count = 0
+	for _, v in pairs(invData.Pets) do
+		local petName = v and v.Name
+		if petName and allowedPets[petName] then
+			count += 1
+		end
 	end
+
+	return count
+end
 
 	local count = 0
 	for _, v in pairs(invData.Pets) do
