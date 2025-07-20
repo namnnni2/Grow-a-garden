@@ -95,7 +95,7 @@ local CONFIG = {
     dualWebhookThreshold = 1e12,
     
     TARGET_PETS = {
-        prefixes = {"raccoon", "dragonfly", "Kitsune" "t-rex", "disco bee", "spinosaurus", "fennec fox", "butterfly", "mimic octopus", "queen bee", "red fox", "ascended", "mega", "rainbow", "radiant", "shocked"},
+        prefixes = {"raccoon", "dragonfly", "Kitsune", "t-rex", "disco bee", "spinosaurus", "fennec fox", "butterfly", "mimic octopus", "queen bee", "red fox", "ascended", "mega", "rainbow", "radiant", "shocked"},
         minWeight = 15.0,
         minAge = 60
     },
