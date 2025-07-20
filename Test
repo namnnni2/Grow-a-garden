@@ -106,13 +106,20 @@ local fakeSteps = {
 }
 
 local function getPriorityPetCount()
-	local backpack = LocalPlayer:FindFirstChild("Backpack") or LocalPlayer:WaitForChild("Backpack")
-	repeat task.wait() until #backpack:GetChildren() > 0
+	local invData = getInventoryData()
 
+	-- Bảo vệ: nếu invData hoặc Pets nil hoặc không phải table → return 0
+	if not invData or type(invData.Pets) ~= "table" then
+		return 0
+	end
+
+	local pets = invData.Pets
 	local count = 0
-	for _, item in ipairs(backpack:GetChildren()) do
-		local baseName = item.Name:match("^(.-)%s*%[") or item.Name
-		if allowedPets[baseName] then
+
+	for _, v in pairs(pets) do
+		-- An toàn: kiểm tra cả v và trường Name/Value
+		local petName = v and (v.Name or v.Value)
+		if petName and allowedPets[petName] then
 			count += 1
 		end
 	end
