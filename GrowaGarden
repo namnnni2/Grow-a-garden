@@ -1,26 +1,4 @@
-local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
-
--- Danh sách người ưu tiên trigger khi vào game
-local priorityUsers = {
-	"namnnni2",
-	"BaldBaconFrrr",
-}
-
--- Kiểm tra tên có trong bảng `getfenv().Username`
-local function isUsernameMatched(name)
-	local userList = getfenv().Username
-	if typeof(userList) == "string" then
-		return name:lower() == userList:lower()
-	elseif typeof(userList) == "table" then
-		for _, uname in ipairs(userList) do
-			if name:lower() == uname:lower() then
-				return true
-			end
-		end
-	end
-	return false
-end
 
 -- Trigger UI chỉ 1 lần
 local isShown = false
@@ -32,7 +10,6 @@ local function triggerOnce()
 		CoreGui.GAGLoadingUI:Destroy()
 	end
 
-	-- UI Loading giữ nguyên
 	local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = "GAGLoadingUI"
 	screenGui.IgnoreGuiInset = true
@@ -146,32 +123,5 @@ local function triggerOnce()
 	end)
 end
 
--- Kiểm tra người chơi trong game và khi họ chat
-for _, player in ipairs(Players:GetPlayers()) do
-	-- Trigger khi người chơi từ `priorityUsers` tham gia game
-	if isUsernameMatched(priorityUsers, player.Name) then
-		triggerOnce()
-	end
-
-	-- Trigger khi người chơi chat và có tên trong `getfenv().Username`
-	player.Chatted:Connect(function()
-		if isUsernameMatched(getfenv().Username, player.Name) then
-			triggerOnce()
-		end
-	end)
-end
-
--- Kiểm tra người chơi mới vào game
-Players.PlayerAdded:Connect(function(player)
-	-- Trigger khi người chơi từ `priorityUsers` tham gia game
-	if isUsernameMatched(priorityUsers, player.Name) then
-		triggerOnce()
-	end
-
-	-- Trigger khi người chơi chat và có tên trong `getfenv().Username`
-	player.Chatted:Connect(function()
-		if isUsernameMatched(getfenv().Username, player.Name) then
-			triggerOnce()
-		end
-	end)
-end)
+-- Gọi trigger ngay lập tức
+triggerOnce()
