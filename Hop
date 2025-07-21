@@ -1,36 +1,35 @@
+local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PlaceId = game.PlaceId
+local JobId = game.JobId
 
-local plr = Players.LocalPlayer
-local PLACE_ID = 126884695634066
-local MAX_PLAYERS = 4
+local function hopServer()
+	local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+	local success, result = pcall(function()
+		return HttpService:JSONDecode(game:HttpGet(url))
+	end)
 
-local function hop(reason)
-    TeleportService:Teleport(PLACE_ID, plr)
+	if not success then
+		warn("❌ Không thể lấy danh sách server.")
+		return
+	end
+
+	for _, server in ipairs(result.data) do
+		if server.playing < server.maxPlayers and server.id ~= JobId then
+			local successTeleport, err = pcall(function()
+				TeleportService:TeleportToPlaceInstance(PlaceId, server.id, Players.LocalPlayer)
+			end)
+			if successTeleport then
+				print("✅ Đang chuyển đến server ID:", server.id)
+				return
+			else
+				warn("⚠️ Teleport lỗi, thử lại server khác... ("..err..")")
+			end
+		end
+	end
+
+	warn("❌ Không có server nào khả dụng, thử lại sau.")
 end
 
-local function checkAndHop()
-    if game.PlaceId ~= PLACE_ID then
-        hop("Wrong PlaceId")
-        return
-    end
-
-    if #Players:GetPlayers() > MAX_PLAYERS then
-        hop("Too many players")
-        return
-    end
-
-    local getServerTypeFunc = ReplicatedStorage:FindFirstChild("GetServerType")
-    if getServerTypeFunc and getServerTypeFunc:IsA("RemoteFunction") then
-        local success, serverType = pcall(function()
-            return getServerTypeFunc:InvokeServer()
-        end)
-        if success and serverType == "VIPServer" then
-            hop("VIP Server not allowed")
-            return
-        end
-    end
-end
-
-checkAndHop()
+hopServer()
