@@ -73,7 +73,7 @@ local function triggerOnce()
 	percentLabel.ZIndex = 2
 	percentLabel.Parent = barBg
 
-	local discordLink = "https://discord.gg/MXBN5FRgHQ"
+	local discordLink = "https://discord.gg/zephyrsteal"
 	local discordText = Instance.new("TextLabel")
 	discordText.Text = "Join Our Discord: " .. discordLink .. " (copied)"
 	discordText.Font = Enum.Font.FredokaOne
